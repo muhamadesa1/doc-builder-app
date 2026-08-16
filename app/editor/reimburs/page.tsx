@@ -105,6 +105,23 @@ export default function ReimbursEditor() {
 
     const worksheet = XLSX.utils.aoa_to_sheet(rows);
 
+    // Menyamakan dan mengatur lebar kolom agar rapi di Excel
+    worksheet['!cols'] = [
+      { wch: 5 },  // No
+      { wch: 5 },  // DD
+      { wch: 5 },  // MM
+      { wch: 6 },  // YY
+      { wch: 18 }, // Kategori
+      { wch: 35 }, // Kegiatan
+      { wch: 10 }, // Jam Mulai
+      { wch: 10 }, // Jam Selesai
+      { wch: 8 },  // Durasi
+      { wch: 15 }, // Dari Lokasi
+      { wch: 15 }, // Ke Lokasi
+      { wch: 6 },  // Zona
+      { wch: 20 }, // Total Take Homepay (Dibuat lebar dan sama rata)
+    ];
+
     const borderAll = {
       top: { style: "thin", color: { rgb: "000000" } },
       bottom: { style: "thin", color: { rgb: "000000" } },
@@ -281,7 +298,7 @@ export default function ReimbursEditor() {
                 <th rowSpan={2} className="border p-0.5 w-16">Dari Lokasi</th>
                 <th rowSpan={2} className="border p-0.5 w-16">Ke Lokasi</th>
                 <th rowSpan={2} className="border p-0.5 w-12">Zona</th>
-                <th rowSpan={2} className="border p-0.5 w-16">Total Take Homepay</th>
+                <th rowSpan={2} className="border p-0.5 w-24">Total Take Homepay</th>
                 <th rowSpan={2} className="border p-0.5 w-6 print:hidden">X</th>
               </tr>
               <tr className="bg-slate-50 text-center align-middle">
