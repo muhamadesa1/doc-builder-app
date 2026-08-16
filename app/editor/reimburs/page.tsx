@@ -127,7 +127,7 @@ export default function ReimbursEditor() {
           </div>
         </div>
 
-        {/* Table Section with Nested Headers */}
+        {/* Table Section */}
         <div className="overflow-x-auto mb-6">
           <table className="w-full border-collapse border border-slate-300 dark:border-slate-700 text-[10px]">
             <thead>
@@ -146,7 +146,7 @@ export default function ReimbursEditor() {
               <tr className="bg-slate-50 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-center font-medium">
                 <th className="border border-slate-300 dark:border-slate-600 p-1 w-8">DD</th>
                 <th className="border border-slate-300 dark:border-slate-600 p-1 w-8">MM</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1 w-12">YY</th>
+                <th className="border border-slate-300 dark:border-slate-600 p-1 w-20">YY</th>
                 <th className="border border-slate-300 dark:border-slate-600 p-1 w-14">Jam Mulai</th>
                 <th className="border border-slate-300 dark:border-slate-600 p-1 w-14">Jam Selesai</th>
                 <th className="border border-slate-300 dark:border-slate-600 p-1 w-14">Durasi</th>
@@ -229,7 +229,7 @@ export default function ReimbursEditor() {
                     <input
                       value={item.ke}
                       onChange={(e) => handleItemChange(idx, "ke", e.target.value)}
-                      className="w-full bg-transparent focus:outline-none"
+                      className="w-full bg-transparent text-center focus:outline-none"
                     />
                   </td>
                   <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">
