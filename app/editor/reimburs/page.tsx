@@ -10,7 +10,7 @@ export default function ReimbursEditor() {
     noRek: "1330026756569 A.N Muhamad Esa",
     periode: "Juni 2026",
     items: [
-      { no: 1, tanggal: "", kategori: "", kegiatan: "", mulai: "", selesai: "", dari: "", ke: "", zona: "", total: "" },
+      { no: 1, dd: "", mm: "", yy: "", kategori: "", kegiatan: "", mulai: "", selesai: "", durasi: "", dari: "", ke: "", zona: "", total: "" },
     ],
   });
 
@@ -31,11 +31,14 @@ export default function ReimbursEditor() {
         ...formData.items,
         {
           no: formData.items.length + 1,
-          tanggal: "",
+          dd: "",
+          mm: "",
+          yy: "",
           kategori: "",
           kegiatan: "",
           mulai: "",
           selesai: "",
+          durasi: "",
           dari: "",
           ke: "",
           zona: "",
@@ -47,7 +50,6 @@ export default function ReimbursEditor() {
 
   const removeItem = (index: number) => {
     const newItems = formData.items.filter((_, i) => i !== index);
-    // Re-index nomor urut
     const reindexed = newItems.map((item, idx) => ({ ...item, no: idx + 1 }));
     setFormData({ ...formData, items: reindexed });
   };
@@ -68,13 +70,13 @@ export default function ReimbursEditor() {
       </header>
 
       {/* Document Sheet (A4 size look) */}
-      <div className="max-w-[210mm] mx-auto bg-white dark:bg-slate-800 p-10 shadow-xl rounded-xl min-h-[297mm]">
-        <h1 className="text-center font-bold text-xl uppercase mb-8 tracking-wider">
+      <div className="max-w-[210mm] mx-auto bg-white dark:bg-slate-800 p-8 shadow-xl rounded-xl min-h-[297mm]">
+        <h1 className="text-center font-bold text-xl uppercase mb-6 tracking-wider">
           Berita Acara Analisa Reimburs
         </h1>
 
         {/* Header Section (Rata Kiri) */}
-        <div className="mb-8 text-sm space-y-2.5 max-w-lg">
+        <div className="mb-6 text-sm space-y-2 max-w-lg">
           <div className="flex items-center">
             <span className="w-28 font-medium">Nama</span>
             <span className="w-4 text-center">:</span>
@@ -125,34 +127,57 @@ export default function ReimbursEditor() {
           </div>
         </div>
 
-        {/* Table Section */}
+        {/* Table Section with Nested Headers */}
         <div className="overflow-x-auto mb-6">
           <table className="w-full border-collapse border border-slate-300 dark:border-slate-700 text-[10px]">
             <thead>
-              <tr className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5 w-10">No.</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Tanggal</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Kategori</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Kegiatan</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Jam Mulai</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Jam Selesai</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Dari Lokasi</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Ke Lokasi</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Zona</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5">Take Homepay</th>
-                <th className="border border-slate-300 dark:border-slate-600 p-1.5 w-12 print:hidden">Aksi</th>
+              <tr className="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-center font-semibold">
+                <th rowSpan={2} className="border border-slate-300 dark:border-slate-600 p-1 w-8">No.</th>
+                <th colSpan={3} className="border border-slate-300 dark:border-slate-600 p-1">Tanggal</th>
+                <th rowSpan={2} className="border border-slate-300 dark:border-slate-600 p-1 w-20">Kategori</th>
+                <th rowSpan={2} className="border border-slate-300 dark:border-slate-600 p-1 w-32">Kegiatan</th>
+                <th colSpan={3} className="border border-slate-300 dark:border-slate-600 p-1">Waktu</th>
+                <th rowSpan={2} className="border border-slate-300 dark:border-slate-600 p-1 w-24">Dari Lokasi</th>
+                <th rowSpan={2} className="border border-slate-300 dark:border-slate-600 p-1 w-24">Ke Lokasi</th>
+                <th rowSpan={2} className="border border-slate-300 dark:border-slate-600 p-1 w-12">Zona</th>
+                <th rowSpan={2} className="border border-slate-300 dark:border-slate-600 p-1 w-24">Total Take Homepay</th>
+                <th rowSpan={2} className="border border-slate-300 dark:border-slate-600 p-1 w-10 print:hidden">Aksi</th>
+              </tr>
+              <tr className="bg-slate-50 dark:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-center font-medium">
+                <th className="border border-slate-300 dark:border-slate-600 p-1 w-8">DD</th>
+                <th className="border border-slate-300 dark:border-slate-600 p-1 w-8">MM</th>
+                <th className="border border-slate-300 dark:border-slate-600 p-1 w-12">YY</th>
+                <th className="border border-slate-300 dark:border-slate-600 p-1 w-14">Jam Mulai</th>
+                <th className="border border-slate-300 dark:border-slate-600 p-1 w-14">Jam Selesai</th>
+                <th className="border border-slate-300 dark:border-slate-600 p-1 w-14">Durasi</th>
               </tr>
             </thead>
             <tbody>
               {formData.items.map((item, idx) => (
                 <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-700/40">
                   <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">{item.no}</td>
-                  <td className="border border-slate-300 dark:border-slate-600 p-1">
+                  <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">
                     <input
-                      value={item.tanggal}
-                      onChange={(e) => handleItemChange(idx, "tanggal", e.target.value)}
-                      className="w-full bg-transparent focus:outline-none"
-                      placeholder="DD/MM"
+                      value={item.dd}
+                      onChange={(e) => handleItemChange(idx, "dd", e.target.value)}
+                      className="w-full bg-transparent text-center focus:outline-none"
+                      placeholder="DD"
+                    />
+                  </td>
+                  <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">
+                    <input
+                      value={item.mm}
+                      onChange={(e) => handleItemChange(idx, "mm", e.target.value)}
+                      className="w-full bg-transparent text-center focus:outline-none"
+                      placeholder="MM"
+                    />
+                  </td>
+                  <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">
+                    <input
+                      value={item.yy}
+                      onChange={(e) => handleItemChange(idx, "yy", e.target.value)}
+                      className="w-full bg-transparent text-center focus:outline-none"
+                      placeholder="YY"
                     />
                   </td>
                   <td className="border border-slate-300 dark:border-slate-600 p-1">
@@ -169,20 +194,28 @@ export default function ReimbursEditor() {
                       className="w-full bg-transparent focus:outline-none"
                     />
                   </td>
-                  <td className="border border-slate-300 dark:border-slate-600 p-1">
+                  <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">
                     <input
                       value={item.mulai}
                       onChange={(e) => handleItemChange(idx, "mulai", e.target.value)}
-                      className="w-full bg-transparent focus:outline-none text-center"
+                      className="w-full bg-transparent text-center focus:outline-none"
                       placeholder="00:00"
                     />
                   </td>
-                  <td className="border border-slate-300 dark:border-slate-600 p-1">
+                  <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">
                     <input
                       value={item.selesai}
                       onChange={(e) => handleItemChange(idx, "selesai", e.target.value)}
-                      className="w-full bg-transparent focus:outline-none text-center"
+                      className="w-full bg-transparent text-center focus:outline-none"
                       placeholder="00:00"
+                    />
+                  </td>
+                  <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">
+                    <input
+                      value={item.durasi}
+                      onChange={(e) => handleItemChange(idx, "durasi", e.target.value)}
+                      className="w-full bg-transparent text-center focus:outline-none"
+                      placeholder="0j"
                     />
                   </td>
                   <td className="border border-slate-300 dark:border-slate-600 p-1">
@@ -199,18 +232,18 @@ export default function ReimbursEditor() {
                       className="w-full bg-transparent focus:outline-none"
                     />
                   </td>
-                  <td className="border border-slate-300 dark:border-slate-600 p-1">
+                  <td className="border border-slate-300 dark:border-slate-600 p-1 text-center">
                     <input
                       value={item.zona}
                       onChange={(e) => handleItemChange(idx, "zona", e.target.value)}
-                      className="w-full bg-transparent focus:outline-none text-center"
+                      className="w-full bg-transparent text-center focus:outline-none"
                     />
                   </td>
-                  <td className="border border-slate-300 dark:border-slate-600 p-1">
+                  <td className="border border-slate-300 dark:border-slate-600 p-1 text-right">
                     <input
                       value={item.total}
                       onChange={(e) => handleItemChange(idx, "total", e.target.value)}
-                      className="w-full bg-transparent focus:outline-none text-right font-medium"
+                      className="w-full bg-transparent text-right focus:outline-none font-medium"
                       placeholder="Rp 0"
                     />
                   </td>
