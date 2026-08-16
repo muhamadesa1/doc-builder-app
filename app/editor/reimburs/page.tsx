@@ -44,7 +44,6 @@ export default function ReimbursEditor() {
     let startM = h1 * 60 + m1;
     let endM = h2 * 60 + m2;
 
-    // Jika jam selesai lebih kecil (misal lewat tengah malam jadi 00:00), tambahkan 24 jam (1440 menit)
     if (endM < startM) {
       endM += 24 * 60;
     }
@@ -57,8 +56,16 @@ export default function ReimbursEditor() {
     const newItems = [...formData.items];
     if (field === "mulai" || field === "selesai") value = formatTimeInput(value);
     (newItems[index] as any)[field] = value;
-    if (field === "mulai" || field === "selesai") newItems[index].durasi = calculateDuration(newItems[index].mulai, newItems[index].selesai);
-    if (field === "zona") newItems[index].total = (parseInt(value) * 15000 || 0).toString();
+
+    if (field === "mulai" || field === "selesai") {
+      newItems[index].durasi = calculateDuration(newItems[index].mulai, newItems[index].selesai);
+    }
+
+    // Jika zona diubah, hitung total otomatis (tapi tetap bisa diedit manual nanti)
+    if (field === "zona") {
+      newItems[index].total = (parseInt(value) * 15000 || 0).toString();
+    }
+
     setFormData({ ...formData, items: newItems });
   };
 
@@ -222,7 +229,14 @@ export default function ReimbursEditor() {
                     <td className="border py-1 align-middle">
                       <input value={item.zona} onChange={(e) => handleItemChange(idx, "zona", e.target.value)} className="w-full bg-transparent text-center" />
                     </td>
-                    <td className="border text-right px-1 py-1 align-middle">Rp {parseInt(item.total || "0").toLocaleString()}</td>
+                    <td className="border text-right px-1 py-1 align-middle">
+                      <input 
+                        value={item.total} 
+                        onChange={(e) => handleItemChange(idx, "total", e.target.value)} 
+                        className="w-full bg-transparent text-right focus:outline-none" 
+                        placeholder="0" 
+                      />
+                    </td>
                     <td className="border text-center print:hidden py-1 align-middle">
                       <button onClick={() => removeItem(idx)} className="text-red-500 font-bold">×</button>
                     </td>
