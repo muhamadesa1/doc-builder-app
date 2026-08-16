@@ -73,7 +73,6 @@ export default function ReimbursEditor() {
     ];
 
     formData.items.forEach((item) => {
-      // Perbaikan: .toString() pada item.no dan perhitungan untuk menghindari error TS
       rows.push([item.no.toString(), item.dd, item.mm, item.yy, item.kategori, item.kegiatan, item.mulai, item.selesai, item.durasi, item.dari, item.ke, item.zona, item.total]);
       if (item.kategori !== "Standby Weekend") {
         rows.push(["", "", "", "", "", "Makan", "", "", "", "", "", "", item.makan]);
@@ -91,7 +90,6 @@ export default function ReimbursEditor() {
 
     const worksheet = XLSX.utils.aoa_to_sheet(rows);
     
-    // MEMUNCULKAN GARIS GRID EXCEL
     if (!worksheet['!views']) worksheet['!views'] = [];
     worksheet['!views'].push({ showGridLines: true });
 
@@ -151,28 +149,95 @@ export default function ReimbursEditor() {
         <div className="mb-2">
           <table className="w-full border-collapse border border-slate-300 text-[9px]">
             <thead>
-              <tr className="bg-slate-100 text-center"><th rowSpan={2} className="border p-0.5">No</th><th colSpan={3} className="border p-0.5">Tgl</th><th rowSpan={2} className="border p-0.5 w-20">Kategori</th><th rowSpan={2} className="border p-0.5">Kegiatan</th><th colSpan={3} className="border p-0.5">Waktu</th><th rowSpan={2} className="border p-0.5">Dari</th><th rowSpan={2} className="border p-0.5">Ke</th><th rowSpan={2} className="border p-0.5">Zona</th><th rowSpan={2} className="border p-0.5">Total</th><th rowSpan={2} className="border p-0.5 print:hidden">X</th></tr>
-              <tr className="bg-slate-50 text-center"><th>DD</th><th>MM</th><th>YY</th><th>Mulai</th><th>Selesai</th><th>Durasi</th></tr>
+              <tr className="bg-slate-100 text-center">
+                <th rowSpan={2} className="border p-0.5 w-8">No</th>
+                <th colSpan={3} className="border p-0.5 w-16">Tgl</th>
+                <th rowSpan={2} className="border p-0.5 w-24">Kategori</th>
+                <th rowSpan={2} className="border p-0.5 w-40">Kegiatan</th>
+                <th colSpan={3} className="border p-0.5 w-24">Waktu</th>
+                <th rowSpan={2} className="border p-0.5 w-16">Dari</th>
+                <th rowSpan={2} className="border p-0.5 w-16">Ke</th>
+                <th rowSpan={2} className="border p-0.5 w-12">Zona</th>
+                <th rowSpan={2} className="border p-0.5 w-16">Total</th>
+                <th rowSpan={2} className="border p-0.5 w-6 print:hidden">X</th>
+              </tr>
+              <tr className="bg-slate-50 text-center">
+                <th className="w-5">DD</th>
+                <th className="w-5">MM</th>
+                <th className="w-6">YY</th>
+                <th className="w-8">Mulai</th>
+                <th className="w-8">Selesai</th>
+                <th className="w-8">Durasi</th>
+              </tr>
             </thead>
             <tbody>
               {formData.items.map((item, idx) => (
                 <React.Fragment key={idx}>
-                  <tr className="hover:bg-slate-50">
-                    <td className="border text-center">{item.no}</td>
-                    {["dd", "mm", "yy"].map(f => <td key={f} className="border"><input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent text-center focus:outline-none" /></td>)}
-                    <td className="border"><select value={item.kategori} onChange={(e) => handleItemChange(idx, "kategori", e.target.value)} className="w-full bg-transparent">{["Survey", "Setup", "Migrasi", "Post Setup/Migrasi", "Troubleshooting", "Request Visit", "Standby Weekend", "Meeting"].map(opt => <option key={opt}>{opt}</option>)}</select></td>
-                    <td className="border"><input value={item.kegiatan} onChange={(e) => handleItemChange(idx, "kegiatan", e.target.value)} className="w-full bg-transparent px-1" /></td>
-                    {["mulai", "selesai"].map(f => <td key={f} className="border"><input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent text-center" placeholder="00:00" /></td>)}
-                    <td className="border text-center font-bold text-indigo-600">{item.durasi}</td>
-                    {["dari", "ke"].map(f => <td key={f} className="border"><input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent px-1" /></td>)}
-                    <td className="border"><input value={item.zona} onChange={(e) => handleItemChange(idx, "zona", e.target.value)} className="w-full bg-transparent text-center" /></td>
-                    <td className="border text-right px-1">Rp {parseInt(item.total || "0").toLocaleString()}</td>
-                    <td className="border text-center print:hidden"><button onClick={() => removeItem(idx)} className="text-red-500 font-bold">×</button></td>
+                  <tr className="hover:bg-slate-50 align-top">
+                    <td className="border text-center py-1">{item.no}</td>
+                    {["dd", "mm", "yy"].map(f => (
+                      <td key={f} className="border py-1">
+                        <input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent text-center focus:outline-none" />
+                      </td>
+                    ))}
+                    <td className="border py-1">
+                      <select value={item.kategori} onChange={(e) => handleItemChange(idx, "kategori", e.target.value)} className="w-full bg-transparent truncate">
+                        {["Survey", "Setup", "Migrasi", "Post Setup/Migrasi", "Troubleshooting", "Request Visit", "Standby Weekend", "Meeting"].map(opt => <option key={opt}>{opt}</option>)}
+                      </select>
+                    </td>
+                    <td className="border py-1 px-1">
+                      <textarea 
+                        value={item.kegiatan} 
+                        onChange={(e) => handleItemChange(idx, "kegiatan", e.target.value)} 
+                        rows={1}
+                        className="w-full bg-transparent focus:outline-none resize-none overflow-hidden break-words whitespace-pre-wrap" 
+                        placeholder="Tulis kegiatan..."
+                        style={{ minHeight: "20px" }}
+                        onInput={(e: any) => {
+                          e.target.style.height = "auto";
+                          e.target.style.height = e.target.scrollHeight + "px";
+                        }}
+                      />
+                    </td>
+                    {["mulai", "selesai"].map(f => (
+                      <td key={f} className="border py-1">
+                        <input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent text-center" placeholder="00:00" />
+                      </td>
+                    ))}
+                    <td className="border text-center font-bold text-indigo-600 py-1">{item.durasi}</td>
+                    {["dari", "ke"].map(f => (
+                      <td key={f} className="border py-1 px-0.5">
+                        <input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent px-0.5 truncate" />
+                      </td>
+                    ))}
+                    <td className="border py-1">
+                      <input value={item.zona} onChange={(e) => handleItemChange(idx, "zona", e.target.value)} className="w-full bg-transparent text-center" />
+                    </td>
+                    <td className="border text-right px-1 py-1">Rp {parseInt(item.total || "0").toLocaleString()}</td>
+                    <td className="border text-center print:hidden py-1">
+                      <button onClick={() => removeItem(idx)} className="text-red-500 font-bold">×</button>
+                    </td>
                   </tr>
                   {item.kategori !== "Standby Weekend" && (
                     <>
-                      <tr className="bg-slate-50/50"><td className="border" colSpan={5}></td><td className="border italic text-[8px] text-slate-500 px-1">Makan</td><td className="border" colSpan={6}></td><td className="border"><input value={item.makan} onChange={(e) => handleItemChange(idx, "makan", e.target.value)} className="w-full bg-transparent text-right px-1" /></td><td className="border print:hidden"></td></tr>
-                      <tr className="bg-slate-50/50"><td className="border" colSpan={5}></td><td className="border italic text-[8px] text-slate-500 px-1">Overtime</td><td className="border" colSpan={6}></td><td className="border"><input value={item.overtime} onChange={(e) => handleItemChange(idx, "overtime", e.target.value)} className="w-full bg-transparent text-right px-1" /></td><td className="border print:hidden"></td></tr>
+                      <tr className="bg-slate-50/50">
+                        <td className="border" colSpan={5}></td>
+                        <td className="border italic text-[8px] text-slate-500 px-1">Makan</td>
+                        <td className="border" colSpan={6}></td>
+                        <td className="border">
+                          <input value={item.makan} onChange={(e) => handleItemChange(idx, "makan", e.target.value)} className="w-full bg-transparent text-right px-1" />
+                        </td>
+                        <td className="border print:hidden"></td>
+                      </tr>
+                      <tr className="bg-slate-50/50">
+                        <td className="border" colSpan={5}></td>
+                        <td className="border italic text-[8px] text-slate-500 px-1">Overtime</td>
+                        <td className="border" colSpan={6}></td>
+                        <td className="border">
+                          <input value={item.overtime} onChange={(e) => handleItemChange(idx, "overtime", e.target.value)} className="w-full bg-transparent text-right px-1" />
+                        </td>
+                        <td className="border print:hidden"></td>
+                      </tr>
                     </>
                   )}
                 </React.Fragment>

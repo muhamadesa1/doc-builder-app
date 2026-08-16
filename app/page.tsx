@@ -7,9 +7,22 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-100 dark:bg-slate-900 p-8 text-slate-800 dark:text-slate-100 flex flex-col items-center">
       <div className="max-w-4xl w-full">
-        <h1 className="text-2xl font-extrabold text-center mb-2 tracking-wide">Pilih Jenis Berita Acara</h1>
-        <p className="text-center text-xs text-slate-500 dark:text-slate-400 mb-8">Silahkan pilih template berita acara yang ingin disunting dan dicetak.</p>
         
+        {/* Header dengan Tombol Combine PDF di Pojok Kanan Atas */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-wide">Pilih Jenis Berita Acara</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Silahkan pilih template berita acara yang ingin disunting dan dicetak.</p>
+          </div>
+          <Link
+            href="/editor/combine-pdf"
+            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow transition-all flex items-center gap-2 border border-indigo-500"
+          >
+            📑 Combine PDF
+          </Link>
+        </div>
+        
+        {/* Grid Menu Berita Acara (Tetap 3 Kolom Biar Seimbang) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Berita Acara Troubleshoot */}
@@ -77,7 +90,7 @@ export default function HomePage() {
             <div className="mt-4 text-indigo-600 dark:text-indigo-400 text-xs font-bold">Buka Template →</div>
           </Link>
 
-          {/* BARU: Berita Acara Standby Weekend */}
+          {/* Berita Acara Standby Weekend */}
           <Link href="/editor/ba-standby" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-center mb-3">
