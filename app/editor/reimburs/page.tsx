@@ -149,7 +149,7 @@ export default function ReimbursEditor() {
         <div className="mb-2">
           <table className="w-full border-collapse border border-slate-300 text-[9px]">
             <thead>
-              <tr className="bg-slate-100 text-center">
+              <tr className="bg-slate-100 text-center align-middle">
                 <th rowSpan={2} className="border p-0.5 w-8">No</th>
                 <th colSpan={3} className="border p-0.5 w-16">Tgl</th>
                 <th rowSpan={2} className="border p-0.5 w-24">Kategori</th>
@@ -161,7 +161,7 @@ export default function ReimbursEditor() {
                 <th rowSpan={2} className="border p-0.5 w-16">Total</th>
                 <th rowSpan={2} className="border p-0.5 w-6 print:hidden">X</th>
               </tr>
-              <tr className="bg-slate-50 text-center">
+              <tr className="bg-slate-50 text-center align-middle">
                 <th className="w-5">DD</th>
                 <th className="w-5">MM</th>
                 <th className="w-6">YY</th>
@@ -173,24 +173,24 @@ export default function ReimbursEditor() {
             <tbody>
               {formData.items.map((item, idx) => (
                 <React.Fragment key={idx}>
-                  <tr className="hover:bg-slate-50 align-top">
-                    <td className="border text-center py-1">{item.no}</td>
+                  <tr className="hover:bg-slate-50 align-middle">
+                    <td className="border text-center py-1 align-middle">{item.no}</td>
                     {["dd", "mm", "yy"].map(f => (
-                      <td key={f} className="border py-1">
+                      <td key={f} className="border py-1 align-middle">
                         <input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent text-center focus:outline-none" />
                       </td>
                     ))}
-                    <td className="border py-1">
+                    <td className="border py-1 align-middle">
                       <select value={item.kategori} onChange={(e) => handleItemChange(idx, "kategori", e.target.value)} className="w-full bg-transparent truncate">
                         {["Survey", "Setup", "Migrasi", "Post Setup/Migrasi", "Troubleshooting", "Request Visit", "Standby Weekend", "Meeting"].map(opt => <option key={opt}>{opt}</option>)}
                       </select>
                     </td>
-                    <td className="border py-1 px-1">
+                    <td className="border py-1 px-1 align-middle">
                       <textarea 
                         value={item.kegiatan} 
                         onChange={(e) => handleItemChange(idx, "kegiatan", e.target.value)} 
                         rows={1}
-                        className="w-full bg-transparent focus:outline-none resize-none overflow-hidden break-words whitespace-pre-wrap" 
+                        className="w-full bg-transparent focus:outline-none resize-none overflow-hidden break-words whitespace-pre-wrap block m-auto" 
                         placeholder="Tulis kegiatan..."
                         style={{ minHeight: "20px" }}
                         onInput={(e: any) => {
@@ -200,27 +200,27 @@ export default function ReimbursEditor() {
                       />
                     </td>
                     {["mulai", "selesai"].map(f => (
-                      <td key={f} className="border py-1">
+                      <td key={f} className="border py-1 align-middle">
                         <input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent text-center" placeholder="00:00" />
                       </td>
                     ))}
-                    <td className="border text-center font-bold text-indigo-600 py-1">{item.durasi}</td>
+                    <td className="border text-center font-bold text-indigo-600 py-1 align-middle">{item.durasi}</td>
                     {["dari", "ke"].map(f => (
-                      <td key={f} className="border py-1 px-0.5">
+                      <td key={f} className="border py-1 px-0.5 align-middle">
                         <input value={(item as any)[f]} onChange={(e) => handleItemChange(idx, f, e.target.value)} className="w-full bg-transparent px-0.5 truncate" />
                       </td>
                     ))}
-                    <td className="border py-1">
+                    <td className="border py-1 align-middle">
                       <input value={item.zona} onChange={(e) => handleItemChange(idx, "zona", e.target.value)} className="w-full bg-transparent text-center" />
                     </td>
-                    <td className="border text-right px-1 py-1">Rp {parseInt(item.total || "0").toLocaleString()}</td>
-                    <td className="border text-center print:hidden py-1">
+                    <td className="border text-right px-1 py-1 align-middle">Rp {parseInt(item.total || "0").toLocaleString()}</td>
+                    <td className="border text-center print:hidden py-1 align-middle">
                       <button onClick={() => removeItem(idx)} className="text-red-500 font-bold">×</button>
                     </td>
                   </tr>
                   {item.kategori !== "Standby Weekend" && (
                     <>
-                      <tr className="bg-slate-50/50">
+                      <tr className="bg-slate-50/50 align-middle">
                         <td className="border" colSpan={5}></td>
                         <td className="border italic text-[8px] text-slate-500 px-1">Makan</td>
                         <td className="border" colSpan={6}></td>
@@ -229,7 +229,7 @@ export default function ReimbursEditor() {
                         </td>
                         <td className="border print:hidden"></td>
                       </tr>
-                      <tr className="bg-slate-50/50">
+                      <tr className="bg-slate-50/50 align-middle">
                         <td className="border" colSpan={5}></td>
                         <td className="border italic text-[8px] text-slate-500 px-1">Overtime</td>
                         <td className="border" colSpan={6}></td>
