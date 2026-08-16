@@ -73,14 +73,15 @@ export default function ReimbursEditor() {
     ];
 
     formData.items.forEach((item) => {
-      rows.push([item.no, item.dd, item.mm, item.yy, item.kategori, item.kegiatan, item.mulai, item.selesai, item.durasi, item.dari, item.ke, item.zona, item.total]);
+      // Perbaikan: .toString() pada item.no dan perhitungan untuk menghindari error TS
+      rows.push([item.no.toString(), item.dd, item.mm, item.yy, item.kategori, item.kegiatan, item.mulai, item.selesai, item.durasi, item.dari, item.ke, item.zona, item.total]);
       if (item.kategori !== "Standby Weekend") {
         rows.push(["", "", "", "", "", "Makan", "", "", "", "", "", "", item.makan]);
         rows.push(["", "", "", "", "", "Overtime", "", "", "", "", "", "", item.overtime]);
       }
     });
 
-    rows.push(["", "", "", "", "", "", "", "", "", "", "", "GRAND TOTAL", calculateGrandTotal()]);
+    rows.push(["", "", "", "", "", "", "", "", "", "", "", "GRAND TOTAL", calculateGrandTotal().toString()]);
     rows.push([], [], []); 
 
     rows.push(["Requested By", "", "", "Reviewer", "", "", "Reviewer", "", "", "Finance", "", "", ""]);
