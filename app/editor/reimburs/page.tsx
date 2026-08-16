@@ -40,8 +40,17 @@ export default function ReimbursEditor() {
     if (!mulai || mulai.length < 5 || !selesai || selesai.length < 5) return "";
     const [h1, m1] = mulai.split(":").map(Number);
     const [h2, m2] = selesai.split(":").map(Number);
-    const diffM = (h2 * 60 + m2) - (h1 * 60 + m1);
-    return diffM >= 0 ? `${Math.floor(diffM / 60)}j ${diffM % 60 > 0 ? (diffM % 60) + "m" : ""}`.trim() : "Error";
+    
+    let startM = h1 * 60 + m1;
+    let endM = h2 * 60 + m2;
+
+    // Jika jam selesai lebih kecil (misal lewat tengah malam jadi 00:00), tambahkan 24 jam (1440 menit)
+    if (endM < startM) {
+      endM += 24 * 60;
+    }
+
+    const diffM = endM - startM;
+    return `${Math.floor(diffM / 60)}j ${diffM % 60 > 0 ? (diffM % 60) + "m" : ""}`.trim();
   };
 
   const handleItemChange = (index: number, field: string, value: string) => {
