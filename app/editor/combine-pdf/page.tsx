@@ -34,12 +34,10 @@ export default function CombinePdfPage() {
         const arrayBuffer = await file.arrayBuffer();
 
         if (file.type === "application/pdf") {
-          // Kalau filenya PDF
           const pdf = await PDFDocument.load(arrayBuffer);
           const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
           copiedPages.forEach((page) => mergedPdf.addPage(page));
         } else if (file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/jpg") {
-          // Kalau filenya Gambar (PNG/JPG) dimasukkan jadi halaman PDF
           let image;
           if (file.type === "image/png") {
             image = await mergedPdf.embedPng(arrayBuffer);
@@ -55,12 +53,13 @@ export default function CombinePdfPage() {
             height: image.height,
           });
         } else {
-          alert(`Format file ${file.name} tidak didukung (hanya PDF, PNG, JPG).`);
+          alert(`Format file ${file.name} tidak didukung.`);
         }
       }
 
       const mergedPdfBytes = await mergedPdf.save();
-      const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+      // Perbaikan tipe data Blob di sini menggunakan .buffer milik Uint8Array
+      const blob = new Blob([mergedPdfBytes.buffer as ArrayBuffer], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       setDownloadUrl(url);
     } catch (error) {
