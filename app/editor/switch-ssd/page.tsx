@@ -42,7 +42,10 @@ export default function StorageEditor() {
     notes: "",
     picParkee: "",
     picCp: "",
+    jabatanCp: "Car Park Manager",
   });
+
+  const listJabatan = ["PIC", "LEAD", "Area Manager", "Car Park Manager"];
 
   const partnerConfig: Record<string, { fullName: string; code: string }> = {
     CP: { fullName: "PT. Centrepark Citra Corpora", code: "CP" },
@@ -134,23 +137,9 @@ export default function StorageEditor() {
               onChange={handleChange}
               className="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 text-sm font-semibold"
             >
-              <option value="CP">PT. Centrepark Citra Corpora (CP)</option>
-              <option value="IPM">PT. Inovasi Parkir Mandiri (IPM)</option>
-              <option value="UPP_DKI">Unit Pengelola Perparkiran Provinsi DKI Jakarta</option>
-              <option value="ZENITH">PT Zenith Indonesia Solutions</option>
-              <option value="TSP">PT Tiga Saudara Propertama</option>
-              <option value="TMS">PT Tekno Mandiri Sejahtera</option>
-              <option value="SML">PT Semai Maju Lestari</option>
-              <option value="PATRA">PT Patra Jasa</option>
-              <option value="BINA_WALUYA">PT Bina Waluya</option>
-              <option value="BANGSAWAN">PT Bangsawan Cyberindo Indonesia</option>
-              <option value="ADHI">PT Adhi Commuter Properti Tbk.</option>
-              <option value="UPK">CV Utama Persada Karya</option>
-              <option value="SMB">CV Selaras Multi Bisnis</option>
-              <option value="AMANAH">PT Amanah Parking</option>
-              <option value="NUGRAH">PT Nugrah Tanamal</option>
-              <option value="BIJAK">PT Bijak</option>
-              <option value="KRIJAYA">PT Krijaya Tika Mandiri</option>
+              {Object.keys(partnerConfig).map((key) => (
+                <option key={key} value={key}>{partnerConfig[key].fullName}</option>
+              ))}
             </select>
           </div>
 
@@ -247,9 +236,15 @@ export default function StorageEditor() {
               <input type="text" value={formData.picParkee} onChange={(e) => setFormData({ ...formData, picParkee: e.target.value })} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
             </div>
             <div>
-              <label className="block font-medium mb-1">Nama Car Park Manager</label>
-              <input type="text" value={formData.picCp} onChange={(e) => setFormData({ ...formData, picCp: e.target.value })} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+              <label className="block font-medium mb-1">Jabatan Partner</label>
+              <select name="jabatanCp" value={formData.jabatanCp} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700">
+                {listJabatan.map(j => <option key={j} value={j}>{j}</option>)}
+              </select>
             </div>
+          </div>
+          <div>
+            <label className="block font-medium mb-1 text-sm">Nama Terang Partner</label>
+            <input type="text" value={formData.picCp} onChange={(e) => setFormData({ ...formData, picCp: e.target.value })} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
           </div>
         </div>
 
@@ -270,12 +265,10 @@ export default function StorageEditor() {
               <tbody>
                 <tr>
                   <td>
-                    {/* Title (Tanpa Garis Bawah) */}
                     <h1 className="text-center text-xs font-bold tracking-wide mb-3 text-black uppercase pb-1">
                       BERITA ACARA PERGANTIAN STORAGE ATAU PC SERVER
                     </h1>
 
-                    {/* Metadata Header */}
                     <div className="space-y-1 mb-3 pl-1">
                       <div className="flex">
                         <span className="w-36 font-semibold">Tanggal</span>
@@ -330,7 +323,6 @@ export default function StorageEditor() {
                       </div>
                     </div>
 
-                    {/* Table Testing 1-18 */}
                     <div className="mb-3">
                       <table className="w-full border-collapse border border-black text-[10px]">
                         <thead>
@@ -354,7 +346,6 @@ export default function StorageEditor() {
                       </table>
                     </div>
 
-                    {/* Hasil & Asset */}
                     <div className="space-y-1.5 mb-3 pl-1 text-[10px]">
                       <div className="flex">
                         <span className="w-32 font-semibold">Hasil</span>
@@ -373,17 +364,15 @@ export default function StorageEditor() {
                       </div>
                     </div>
 
-                    {/* Syarat & Ketentuan Asset Pinjaman */}
                     <div className="mb-4 text-[9.5px] leading-tight bg-slate-50 p-2 border border-black/40 rounded-sm">
                       <ul className="list-disc pl-4 space-y-0.5">
                         <li>Asset existing lokasi yang korup/rusak dan PARKEE meminjamkan asset ke lokasi {currentPartner.code}.</li>
                         <li>Asset pinjaman akan dikembalikan ke PARKEE oleh {currentPartner.code}, setelah diganti dengan asset yang baru.</li>
-                        <li>Jika dalam waktu 1 minggu belum dikembalikan, PARKEE akan charge asset yang dipinjkamkan ke {currentPartner.code}.</li>
+                        <li>Jika dalam waktu 1 minggu belum dikembalikan, PARKEE akan charge asset yang dipinjamkan ke {currentPartner.code}.</li>
                         <li>Asset yang digunakan berdasarkan Delivery Order yang dikirimkan PARKEE dan diterima oleh PIC/Ops Lokasi {currentPartner.code} akan ditagihkan ke {currentPartner.code}.</li>
                       </ul>
                     </div>
 
-                    {/* Bottom Signatures */}
                     <div className="mt-6 pt-2">
                       <div className="flex justify-between items-end px-4 text-xs">
                         <div className="text-left space-y-10">
@@ -398,7 +387,7 @@ export default function StorageEditor() {
                           <p className="font-bold">{currentPartner.fullName}</p>
                           <div>
                             <p className="font-bold underline">{formData.picCp || " "}</p>
-                            <p className="font-semibold text-slate-700">Car Park Manager</p>
+                            <p className="font-semibold text-slate-700">{formData.jabatanCp}</p>
                           </div>
                         </div>
                       </div>
@@ -408,7 +397,6 @@ export default function StorageEditor() {
                 </tr>
               </tbody>
             </table>
-
           </div>
         </div>
       </div>

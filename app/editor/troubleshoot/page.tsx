@@ -18,8 +18,11 @@ export default function TroubleshootEditor() {
     hasil: "",
     asset: "",
     picParkee: "",
-    picCp: "",
+    picCp: "", // Nama Terang (diisi manual)
+    jabatanCp: "Car Park Manager", // Jabatan (pilihan dropdown)
   });
+
+  const listJabatan = ["PIC", "LEAD", "Area Manager", "Car Park Manager"];
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -34,7 +37,6 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  // CP dan IPM tetap menggunakan singkatan di Notes, perusahaan lain menggunakan Nama Lengkap
   const partnerConfig: Record<string, { fullName: string; code: string }> = {
     CP: { fullName: "PT. Centrepark Citra Corpora", code: "CP" },
     IPM: { fullName: "PT. Inovasi Parkir Mandiri", code: "IPM" },
@@ -96,23 +98,9 @@ export default function TroubleshootEditor() {
                 onChange={handleChange}
                 className="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 border-indigo-300 dark:border-indigo-700 font-semibold"
               >
-                <option value="CP">PT. Centrepark Citra Corpora (CP)</option>
-                <option value="IPM">PT. Inovasi Parkir Mandiri (IPM)</option>
-                <option value="UPP_DKI">Unit Pengelola Perparkiran Provinsi DKI Jakarta</option>
-                <option value="ZENITH">PT Zenith Indonesia Solutions</option>
-                <option value="TSP">PT Tiga Saudara Propertama</option>
-                <option value="TMS">PT Tekno Mandiri Sejahtera</option>
-                <option value="SML">PT Semai Maju Lestari</option>
-                <option value="PATRA">PT Patra Jasa</option>
-                <option value="BINA_WALUYA">PT Bina Waluya</option>
-                <option value="BANGSAWAN">PT Bangsawan Cyberindo Indonesia</option>
-                <option value="ADHI">PT Adhi Commuter Properti Tbk.</option>
-                <option value="UPK">CV Utama Persada Karya</option>
-                <option value="SMB">CV Selaras Multi Bisnis</option>
-                <option value="AMANAH">PT Amanah Parking</option>
-                <option value="NUGRAH">PT Nugrah Tanamal</option>
-                <option value="BIJAK">PT Bijak</option>
-                <option value="KRIJAYA">PT Krijaya Tika Mandiri</option>
+                {Object.keys(partnerConfig).map((key) => (
+                    <option key={key} value={key}>{partnerConfig[key].fullName}</option>
+                ))}
               </select>
             </div>
 
@@ -264,17 +252,34 @@ export default function TroubleshootEditor() {
                   className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
                 />
               </div>
+              
+              {/* Dropdown Pilihan Jabatan Partner */}
               <div>
-                <label className="block font-medium mb-1">Nama Car Park Manager</label>
-                <input
-                  type="text"
-                  name="picCp"
-                  placeholder="Nama Terang"
-                  value={formData.picCp}
+                <label className="block font-medium mb-1">Jabatan Partner</label>
+                <select
+                  name="jabatanCp"
+                  value={formData.jabatanCp}
                   onChange={handleChange}
                   className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                />
+                >
+                  {listJabatan.map((j) => (
+                    <option key={j} value={j}>{j}</option>
+                  ))}
+                </select>
               </div>
+            </div>
+
+            {/* Input Nama Terang Partner (Manual) */}
+            <div>
+              <label className="block font-medium mb-1">Nama Terang Partner / Manager</label>
+              <input
+                type="text"
+                name="picCp"
+                placeholder="Masukkan Nama Terang"
+                value={formData.picCp}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+              />
             </div>
           </div>
         </div>
@@ -283,7 +288,6 @@ export default function TroubleshootEditor() {
         <div className="w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white">
           <div className="bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:p-0">
             <div>
-              {/* Header Logo PARKEE */}
               <div className="mb-3 flex justify-start items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -293,147 +297,54 @@ export default function TroubleshootEditor() {
                 />
               </div>
 
-              {/* Document Title */}
               <h1 className="text-center text-lg font-bold mb-6 text-black">
-                Berita Acara Troubleshoots
+                Berita Acara Troubleshoot
               </h1>
 
-              {/* Metadata List */}
               <div className="space-y-2.5 leading-relaxed">
-                <div className="flex">
-                  <span className="w-40 font-semibold">Tanggal</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1">{formData.tanggal}</span>
-                </div>
-
-                <div className="flex">
-                  <span className="w-40 font-semibold">Lokasi</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1">{formData.lokasi}</span>
-                </div>
-
-                <div className="flex">
-                  <span className="w-40 font-semibold">Kehadiran</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1">{formData.kehadiran}</span>
-                </div>
-
-                <div className="flex">
-                  <span className="w-40 font-semibold">Jam Mulai</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1">{formData.jamMulai}</span>
-                </div>
-
-                <div className="flex">
-                  <span className="w-40 font-semibold">Jam Selesai</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1">{formData.jamSelesai}</span>
-                </div>
-
-                {/* Checkbox Interactive Issue */}
+                <div className="flex"><span className="w-40 font-semibold">Tanggal</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.tanggal}</span></div>
+                <div className="flex"><span className="w-40 font-semibold">Lokasi</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.lokasi}</span></div>
+                <div className="flex"><span className="w-40 font-semibold">Kehadiran</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.kehadiran}</span></div>
+                <div className="flex"><span className="w-40 font-semibold">Jam Mulai</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.jamMulai}</span></div>
+                <div className="flex"><span className="w-40 font-semibold">Jam Selesai</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.jamSelesai}</span></div>
+                
                 <div className="flex items-center">
-                  <span className="w-40 font-semibold">Issue</span>
-                  <span className="w-6 text-center">:</span>
+                  <span className="w-40 font-semibold">Issue</span><span className="w-6 text-center">:</span>
                   <div className="flex items-center gap-8">
-                    <button
-                      type="button"
-                      onClick={() => toggleSelect("issueType", "Sistem")}
-                      className="flex items-center gap-2 cursor-pointer select-none"
-                    >
-                      <div
-                        className={`w-3.5 h-3.5 border border-slate-800 flex items-center justify-center text-[10px] ${
-                          formData.issueType === "Sistem" ? "bg-black text-white" : "bg-white"
-                        }`}
-                      >
-                        {formData.issueType === "Sistem" && "✓"}
-                      </div>
+                    <button type="button" onClick={() => toggleSelect("issueType", "Sistem")} className="flex items-center gap-2">
+                      <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.issueType === "Sistem" ? "bg-black" : "bg-white"}`}></div>
                       <span>Sistem</span>
                     </button>
-
-                    <button
-                      type="button"
-                      onClick={() => toggleSelect("issueType", "Non Sistem")}
-                      className="flex items-center gap-2 cursor-pointer select-none"
-                    >
-                      <div
-                        className={`w-3.5 h-3.5 border border-slate-800 flex items-center justify-center text-[10px] ${
-                          formData.issueType === "Non Sistem" ? "bg-black text-white" : "bg-white"
-                        }`}
-                      >
-                        {formData.issueType === "Non Sistem" && "✓"}
-                      </div>
+                    <button type="button" onClick={() => toggleSelect("issueType", "Non Sistem")} className="flex items-center gap-2">
+                      <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.issueType === "Non Sistem" ? "bg-black" : "bg-white"}`}></div>
                       <span>Non Sistem = Rp.350.000,-</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Checkbox Interactive Tujuan Kunjungan */}
                 <div className="flex items-center">
-                  <span className="w-40 font-semibold">Tujuan Kunjungan</span>
-                  <span className="w-6 text-center">:</span>
+                  <span className="w-40 font-semibold">Tujuan Kunjungan</span><span className="w-6 text-center">:</span>
                   <div className="flex items-center gap-8">
-                    <button
-                      type="button"
-                      onClick={() => toggleSelect("tujuanKunjungan", "Parkee")}
-                      className="flex items-center gap-2 cursor-pointer select-none"
-                    >
-                      <div
-                        className={`w-3.5 h-3.5 border border-slate-800 flex items-center justify-center text-[10px] ${
-                          formData.tujuanKunjungan === "Parkee" ? "bg-black text-white" : "bg-white"
-                        }`}
-                      >
-                        {formData.tujuanKunjungan === "Parkee" && "✓"}
-                      </div>
+                    <button type="button" onClick={() => toggleSelect("tujuanKunjungan", "Parkee")} className="flex items-center gap-2">
+                      <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.tujuanKunjungan === "Parkee" ? "bg-black" : "bg-white"}`}></div>
                       <span>Parkee</span>
                     </button>
-
-                    <button
-                      type="button"
-                      onClick={() => toggleSelect("tujuanKunjungan", "Lain-lain")}
-                      className="flex items-center gap-2 cursor-pointer select-none"
-                    >
-                      <div
-                        className={`w-3.5 h-3.5 border border-slate-800 flex items-center justify-center text-[10px] ${
-                          formData.tujuanKunjungan === "Lain-lain" ? "bg-black text-white" : "bg-white"
-                        }`}
-                      >
-                        {formData.tujuanKunjungan === "Lain-lain" && "✓"}
-                      </div>
+                    <button type="button" onClick={() => toggleSelect("tujuanKunjungan", "Lain-lain")} className="flex items-center gap-2">
+                      <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.tujuanKunjungan === "Lain-lain" ? "bg-black" : "bg-white"}`}></div>
                       <span>Lain-lain</span>
                     </button>
                   </div>
                 </div>
 
-                <div className="flex pt-1">
-                  <span className="w-40 font-semibold">Tindakan</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1 whitespace-pre-wrap">{formData.tindakan}</span>
-                </div>
+                <div className="flex pt-1"><span className="w-40 font-semibold">Tindakan</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.tindakan}</span></div>
+                <div className="flex pt-1"><span className="w-40 font-semibold">Step yang dilakukan</span><span className="w-6 text-center">:</span><span className="flex-1 whitespace-pre-wrap">{formData.step}</span></div>
+                <div className="flex pt-1"><span className="w-40 font-semibold">Hasil</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.hasil}</span></div>
+                <div className="flex pt-1"><span className="w-40 font-semibold">Asset yang digunakan</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.asset}</span></div>
 
-                <div className="flex pt-1">
-                  <span className="w-40 font-semibold">Step yang dilakukan</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1 whitespace-pre-wrap">{formData.step}</span>
-                </div>
-
-                <div className="flex pt-1">
-                  <span className="w-40 font-semibold">Hasil</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1 whitespace-pre-wrap">{formData.hasil}</span>
-                </div>
-
-                <div className="flex pt-1">
-                  <span className="w-40 font-semibold">Asset yang digunakan</span>
-                  <span className="w-6 text-center">:</span>
-                  <span className="flex-1 whitespace-pre-wrap">{formData.asset}</span>
-                </div>
-
-                {/* Notes List */}
                 <div className="flex pt-3">
-                  <span className="w-40 font-semibold">Notes</span>
-                  <span className="w-6 text-center">:</span>
+                  <span className="w-40 font-semibold">Notes</span><span className="w-6 text-center">:</span>
                   <div className="flex-1">
-                    <ul className="list-disc pl-4 space-y-1 text-xs text-slate-800 leading-normal">
+                    <ul className="list-disc pl-4 space-y-1 text-xs text-slate-800">
                       <li>Asset existing lokasi yang korup/rusak dan PARKEE meminjamkan asset ke lokasi {currentPartner.code}.</li>
                       <li>Asset pinjaman akan dikembalikan ke PARKEE oleh {currentPartner.code}, setelah diganti dengan asset yang baru.</li>
                       <li>Jika dalam waktu 1 minggu belum dikembalikan, PARKEE akan charge asset yang dipinjamkan ke {currentPartner.code}.</li>
@@ -444,7 +355,6 @@ export default function TroubleshootEditor() {
               </div>
             </div>
 
-            {/* Bottom Signatures (Spasi Tanda Tangan Diperlebar Ke space-y-14) */}
             <div className="mt-8 pt-2">
               <div className="flex justify-between items-end px-4">
                 <div className="text-left space-y-14">
@@ -454,12 +364,11 @@ export default function TroubleshootEditor() {
                     <p className="font-semibold text-slate-700">IT Support</p>
                   </div>
                 </div>
-
                 <div className="text-left space-y-14">
                   <p className="font-bold">{currentPartner.fullName}</p>
                   <div>
                     <p className="font-bold underline">{formData.picCp || " "}</p>
-                    <p className="font-semibold text-slate-700">Car Park Manager</p>
+                    <p className="font-semibold text-slate-700">{formData.jabatanCp}</p>
                   </div>
                 </div>
               </div>

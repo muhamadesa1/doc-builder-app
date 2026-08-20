@@ -7,7 +7,7 @@ export default function LiveEditor() {
   const [formData, setFormData] = useState({
     hari: "",
     tanggal: "",
-    tahun: new Date().getFullYear().toString(), // Otomatis ngikutin tahun sekarang (2026)
+    tahun: new Date().getFullYear().toString(),
     lokasi: "",
     dimigrasiOleh: "",
     jamMulai: "",
@@ -71,7 +71,10 @@ export default function LiveEditor() {
     notes: "",
     picParkee: "",
     picCp: "",
+    jabatanCp: "Car Park Manager",
   });
+
+  const listJabatan = ["PIC", "LEAD", "Area Manager", "Car Park Manager"];
 
   const partnerConfig: Record<string, { fullName: string; code: string }> = {
     CP: { fullName: "PT. Centrepark Citra Corpora", code: "CP" },
@@ -173,23 +176,9 @@ export default function LiveEditor() {
               onChange={handleChange}
               className="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 text-sm font-semibold"
             >
-              <option value="CP">PT. Centrepark Citra Corpora (CP)</option>
-              <option value="IPM">PT. Inovasi Parkir Mandiri (IPM)</option>
-              <option value="UPP_DKI">Unit Pengelola Perparkiran Provinsi DKI Jakarta</option>
-              <option value="ZENITH">PT Zenith Indonesia Solutions</option>
-              <option value="TSP">PT Tiga Saudara Propertama</option>
-              <option value="TMS">PT Tekno Mandiri Sejahtera</option>
-              <option value="SML">PT Semai Maju Lestari</option>
-              <option value="PATRA">PT Patra Jasa</option>
-              <option value="BINA_WALUYA">PT Bina Waluya</option>
-              <option value="BANGSAWAN">PT Bangsawan Cyberindo Indonesia</option>
-              <option value="ADHI">PT Adhi Commuter Properti Tbk.</option>
-              <option value="UPK">CV Utama Persada Karya</option>
-              <option value="SMB">CV Selaras Multi Bisnis</option>
-              <option value="AMANAH">PT Amanah Parking</option>
-              <option value="NUGRAH">PT Nugrah Tanamal</option>
-              <option value="BIJAK">PT Bijak</option>
-              <option value="KRIJAYA">PT Krijaya Tika Mandiri</option>
+              {Object.keys(partnerConfig).map((key) => (
+                <option key={key} value={key}>{partnerConfig[key].fullName}</option>
+              ))}
             </select>
           </div>
 
@@ -283,9 +272,15 @@ export default function LiveEditor() {
               <input type="text" value={formData.picParkee} onChange={(e) => setFormData({ ...formData, picParkee: e.target.value })} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
             </div>
             <div>
-              <label className="block font-medium mb-1">Nama Car Park Manager</label>
-              <input type="text" value={formData.picCp} onChange={(e) => setFormData({ ...formData, picCp: e.target.value })} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+              <label className="block font-medium mb-1">Jabatan Partner</label>
+              <select name="jabatanCp" value={formData.jabatanCp} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700 font-semibold">
+                {listJabatan.map(j => <option key={j} value={j}>{j}</option>)}
+              </select>
             </div>
+          </div>
+          <div>
+            <label className="block font-medium mb-1 text-sm">Nama Terang Partner</label>
+            <input type="text" value={formData.picCp} onChange={(e) => setFormData({ ...formData, picCp: e.target.value })} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
           </div>
         </div>
 
@@ -509,7 +504,7 @@ export default function LiveEditor() {
                           <p className="font-bold">{currentPartner.fullName}</p>
                           <div>
                             <p className="font-bold underline">{formData.picCp || " "}</p>
-                            <p className="font-semibold text-slate-700">Car Park Manager</p>
+                            <p className="font-semibold text-slate-700">{formData.jabatanCp}</p>
                           </div>
                         </div>
                       </div>
