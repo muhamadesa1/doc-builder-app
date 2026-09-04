@@ -12,14 +12,14 @@ export default function TroubleshootEditor() {
     jamSelesai: "",
     issueType: "",
     tujuanKunjungan: "",
-    partnerCompany: "CP", // Default CP
+    partnerCompany: "", // Kosong di awal saat pertama kali dibuka
     tindakan: "",
     step: "",
     hasil: "",
     asset: "",
     picParkee: "",
-    picCp: "", // Nama Terang (diisi manual)
-    jabatanCp: "Car Park Manager", // Jabatan (pilihan dropdown)
+    picCp: "",
+    jabatanCp: "Car Park Manager",
   });
 
   const listJabatan = ["PIC", "LEAD", "Area Manager", "Car Park Manager"];
@@ -37,261 +37,367 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  const partnerConfig: Record<string, { fullName: string; code: string }> = {
-    CP: { fullName: "PT. Centrepark Citra Corpora", code: "CP" },
-    IPM: { fullName: "PT. Inovasi Parkir Mandiri", code: "IPM" },
-    UPP_DKI: { fullName: "Unit Pengelola Perparkiran Provinsi DKI Jakarta", code: "Unit Pengelola Perparkiran Provinsi DKI Jakarta" },
-    ZENITH: { fullName: "PT Zenith Indonesia Solutions", code: "PT Zenith Indonesia Solutions" },
-    TSP: { fullName: "PT Tiga Saudara Propertama", code: "PT Tiga Saudara Propertama" },
-    TMS: { fullName: "PT Tekno Mandiri Sejahtera", code: "PT Tekno Mandiri Sejahtera" },
-    SML: { fullName: "PT Semai Maju Lestari", code: "PT Semai Maju Lestari" },
-    PATRA: { fullName: "PT Patra Jasa", code: "PT Patra Jasa" },
-    BINA_WALUYA: { fullName: "PT Bina Waluya", code: "PT Bina Waluya" },
-    BANGSAWAN: { fullName: "PT Bangsawan Cyberindo Indonesia", code: "PT Bangsawan Cyberindo Indonesia" },
-    ADHI: { fullName: "PT Adhi Commuter Properti Tbk.", code: "PT Adhi Commuter Properti Tbk." },
-    UPK: { fullName: "CV Utama Persada Karya", code: "CV Utama Persada Karya" },
-    SMB: { fullName: "CV Selaras Multi Bisnis", code: "CV Selaras Multi Bisnis" },
-    AMANAH: { fullName: "PT Amanah Parking", code: "PT Amanah Parking" },
-    NUGRAH: { fullName: "PT Nugrah Tanamal", code: "PT Nugrah Tanamal" },
-    BIJAK: { fullName: "PT Bijak", code: "PT Bijak" },
-    KRIJAYA: { fullName: "PT Krijaya Tika Mandiri", code: "PT Krijaya Tika Mandiri" },
-  };
+  // Daftar lengkap perusahaan partner dengan inisial
+  const partnerList = [
+    { fullName: "PT. Centrepark Citra Corpora", code: "CP" },
+    { fullName: "PT. Inovasi Parkir Mandiri", code: "IPM" },
+    { fullName: "PT Reksa Griya Antam", code: "RGA" },
+    { fullName: "Unit Pengelola Perparkiran Provinsi DKI Jakarta", code: "UPP_DKI" },
+    { fullName: "PT Zenith Indonesia Solutions", code: "ZENITH" },
+    { fullName: "PT Tiga Saudara Propertama", code: "TSP" },
+    { fullName: "PT Tekno Mandiri Sejahtera", code: "TMS" },
+    { fullName: "PT Semai Maju Lestari", code: "SML" },
+    { fullName: "PT Patra Jasa", code: "PATRA" },
+    { fullName: "PT Bina Waluya", code: "BINA_WALUYA" },
+    { fullName: "PT Bangsawan Cyberindo Indonesia", code: "BANGSAWAN" },
+    { fullName: "PT Adhi Commuter Properti Tbk.", code: "ADHI" },
+    { fullName: "CV Utama Persada Karya", code: "UPK" },
+    { fullName: "CV Selaras Multi Bisnis", code: "SMB" },
+    { fullName: "PT Amanah Parking", code: "AMANAH" },
+    { fullName: "PT Nugrah Tanamal", code: "NUGRAH" },
+    { fullName: "PT Bijak", code: "BIJAK" },
+    { fullName: "PT Krijaya Tika Mandiri", code: "KRIJAYA" },
+  ];
 
-  const currentPartner = partnerConfig[formData.partnerCompany] || partnerConfig.CP;
+  // Logika: Jika input kosong, otomatis fallback ke default ("CP" / Centrepark)
+  const cleanPartnerName = formData.partnerCompany.replace(/\s*\([A-Za-z0-9_-]+\)$/, "").trim();
+  const currentPartnerData = partnerList.find(
+    p => p.fullName.toLowerCase() === cleanPartnerName.toLowerCase() || p.code.toLowerCase() === formData.partnerCompany.trim().toLowerCase()
+  ) || partnerList[0]; // Fallback ke partner pertama (CP) jika kosong
   
-  // Cek apakah partner yang dipilih termasuk yang menampilkan harga (CP atau IPM)
-  const showPrice = formData.partnerCompany === "CP" || formData.partnerCompany === "IPM";
+  const currentPartner = { fullName: currentPartnerData.fullName, code: currentPartnerData.code };
+  const showPrice = currentPartner.code === "CP" || currentPartner.code === "IPM";
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
+      {/* Background Dot Grid Pattern */}
+      <div className="absolute inset-0 z-0 opacity-40 dark:opacity-20 pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px]" />
+
+      {/* Background Soft Glow Orb */}
+      <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-indigo-200 via-purple-200 to-blue-200 dark:from-indigo-950 dark:via-purple-950 dark:to-blue-950 blur-[130px] rounded-full pointer-events-none opacity-50 z-0" />
+
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0mm;
+          }
+
+          html,
+          body {
+            background: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            overflow: visible !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          header,
+          .print\\:hidden {
+            display: none !important;
+          }
+
+          .print-preview {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+            display: block !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+          }
+
+          .print-document {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+            box-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            padding: 8mm 10mm !important;
+            margin: 0 !important;
+            background: white !important;
+          }
+        }
+      `}</style>
+
       {/* Top Bar */}
-      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between sticky top-0 z-10 print:hidden">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="text-sm font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+      <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 print:hidden">
+        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold transition-all text-slate-700 dark:text-slate-200"
+            >
+              ← Kembali
+            </Link>
+            <div className="h-4 w-px bg-slate-300 dark:bg-slate-700" />
+            <div className="flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs">
+                🛠️
+              </span>
+              <span className="font-semibold text-sm tracking-tight text-slate-700 dark:text-slate-200">
+                Berita Acara <span className="font-bold text-indigo-600 dark:text-indigo-400">Troubleshoot</span>
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => window.print()}
+            className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs rounded-full shadow transition-all duration-200 flex items-center gap-2 active:scale-95"
           >
-            ← Kembali
-          </Link>
-          <h1 className="text-lg font-bold">Editor Berita Acara Troubleshoot</h1>
+            🖨️ Cetak / Save PDF
+          </button>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow transition-all flex items-center gap-2"
-        >
-          🖨️ Cetak / Save PDF
-        </button>
       </header>
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden z-10">
+        
         {/* Left Side: Input Form */}
-        <div className="w-full md:w-5/12 p-6 overflow-y-auto border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 print:hidden">
-          <h2 className="text-xl font-bold mb-6 text-indigo-600">Form Input Data</h2>
-          
-          <div className="space-y-4 text-sm">
-            {/* Dropdown Pilihan Perusahaan Partner */}
-            <div className="p-3 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-lg">
-              <label className="block font-bold mb-1 text-indigo-700 dark:text-indigo-300">
-                Perusahaan Partner / Mitra
+        <div className="w-full md:w-5/12 p-6 overflow-y-auto border-r border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md print:hidden space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <span className="text-[10px] font-bold tracking-wider uppercase text-indigo-500 dark:text-indigo-400 opacity-90">
+                Interactive Form
+              </span>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white mt-0.5 tracking-tight">
+                Form Input Data
+              </h2>
+            </div>
+            <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[11px] font-medium rounded-lg">
+              Live Preview
+            </span>
+          </div>
+
+          <div className="space-y-5 text-sm">
+            {/* Section 1: Partner dengan Search Inisial / Nama (Kosong di awal, default CP) */}
+            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl space-y-2">
+              <label className="block font-bold text-indigo-900 dark:text-indigo-300 text-xs uppercase tracking-wider">
+                Perusahaan Partner / Mitra (Ketik inisial cth: CP, RGA)
               </label>
-              <select
+              <input
+                type="text"
                 name="partnerCompany"
+                list="partner-list"
                 value={formData.partnerCompany}
                 onChange={handleChange}
-                className="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 border-indigo-300 dark:border-indigo-700 font-semibold"
-              >
-                {Object.keys(partnerConfig).map((key) => (
-                    <option key={key} value={key}>{partnerConfig[key].fullName}</option>
+                placeholder="Ketik inisial (Default: CP)..."
+                className="w-full p-3 border border-indigo-200 dark:border-indigo-800 rounded-xl bg-white dark:bg-slate-800 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition-all"
+              />
+              <datalist id="partner-list">
+                {partnerList.map((item, idx) => (
+                  <option key={idx} value={`${item.fullName} (${item.code})`} />
                 ))}
-              </select>
+              </datalist>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium mb-1">Tanggal</label>
-                <input
-                  type="date"
-                  name="tanggal"
-                  value={formData.tanggal}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Lokasi</label>
-                <input
-                  type="text"
-                  name="lokasi"
-                  placeholder="Nama Lokasi"
-                  value={formData.lokasi}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-medium mb-1">Kehadiran</label>
-              <input
-                type="text"
-                name="kehadiran"
-                placeholder="Nama-nama teknisi/PIC yang hadir"
-                value={formData.kehadiran}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium mb-1">Jam Mulai</label>
-                <input
-                  type="time"
-                  name="jamMulai"
-                  value={formData.jamMulai}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Jam Selesai</label>
-                <input
-                  type="time"
-                  name="jamSelesai"
-                  value={formData.jamSelesai}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium mb-1">Jenis Issue</label>
-                <select
-                  name="issueType"
-                  value={formData.issueType}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                >
-                  <option value="">-- Pilih Issue --</option>
-                  <option value="Sistem">Sistem</option>
-                  <option value="Non Sistem">
-                    Non Sistem {showPrice ? "= Rp.350.000,-" : ""}
-                  </option>
-                </select>
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Tujuan Kunjungan</label>
-                <select
-                  name="tujuanKunjungan"
-                  value={formData.tujuanKunjungan}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                >
-                  <option value="">-- Pilih Tujuan --</option>
-                  <option value="Parkee">Parkee</option>
-                  <option value="Lain-lain">Lain-lain</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-medium mb-1">Tindakan</label>
-              <textarea
-                name="tindakan"
-                rows={2}
-                placeholder="Tindakan awal..."
-                value={formData.tindakan}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-              />
-            </div>
-
-            <div>
-              <label className="block font-medium mb-1">Step yang dilakukan</label>
-              <textarea
-                name="step"
-                rows={3}
-                placeholder="Langkah-langkah perbaikan..."
-                value={formData.step}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-              />
-            </div>
-
-            <div>
-              <label className="block font-medium mb-1">Hasil</label>
-              <input
-                type="text"
-                name="hasil"
-                placeholder="Hasil akhir penanganan"
-                value={formData.hasil}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-              />
-            </div>
-
-            <div>
-              <label className="block font-medium mb-1">Asset yang digunakan</label>
-              <input
-                type="text"
-                name="asset"
-                placeholder="Daftar asset/komponen pengganti"
-                value={formData.asset}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              <div>
-                <label className="block font-medium mb-1">Nama IT Support (Parkee)</label>
-                <input
-                  type="text"
-                  name="picParkee"
-                  placeholder="Nama Terang"
-                  value={formData.picParkee}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                />
-              </div>
+            {/* Section 2: Waktu & Lokasi */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Waktu &amp; Lokasi</h3>
               
-              {/* Dropdown Pilihan Jabatan Partner */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Tanggal</label>
+                  <input
+                    type="date"
+                    name="tanggal"
+                    value={formData.tanggal}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Lokasi</label>
+                  <input
+                    type="text"
+                    name="lokasi"
+                    placeholder="Nama Lokasi"
+                    value={formData.lokasi}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block font-medium mb-1">Jabatan Partner</label>
-                <select
-                  name="jabatanCp"
-                  value={formData.jabatanCp}
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Kehadiran (Teknisi / PIC)</label>
+                <input
+                  type="text"
+                  name="kehadiran"
+                  placeholder="Contoh: Budi, Andi"
+                  value={formData.kehadiran}
                   onChange={handleChange}
-                  className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-                >
-                  {listJabatan.map((j) => (
-                    <option key={j} value={j}>{j}</option>
-                  ))}
-                </select>
+                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Jam Mulai</label>
+                  <input
+                    type="time"
+                    name="jamMulai"
+                    value={formData.jamMulai}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Jam Selesai</label>
+                  <input
+                    type="time"
+                    name="jamSelesai"
+                    value={formData.jamSelesai}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Input Nama Terang Partner (Manual) */}
-            <div>
-              <label className="block font-medium mb-1">Nama Terang Partner / Manager</label>
-              <input
-                type="text"
-                name="picCp"
-                placeholder="Masukkan Nama Terang"
-                value={formData.picCp}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg bg-slate-50 dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-              />
+            {/* Section 3: Detail Troubleshoot */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Detail Kendala &amp; Tindakan</h3>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Jenis Issue</label>
+                  <select
+                    name="issueType"
+                    value={formData.issueType}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  >
+                    <option value="">-- Pilih Issue --</option>
+                    <option value="Sistem">Sistem</option>
+                    <option value="Non Sistem">
+                      Non Sistem {showPrice ? "= Rp.350.000,-" : ""}
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Tujuan Kunjungan</label>
+                  <select
+                    name="tujuanKunjungan"
+                    value={formData.tujuanKunjungan}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  >
+                    <option value="">-- Pilih Tujuan --</option>
+                    <option value="Parkee">Parkee</option>
+                    <option value="Lain-lain">Lain-lain</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Tindakan</label>
+                <textarea
+                  name="tindakan"
+                  rows={2}
+                  placeholder="Tindakan awal..."
+                  value={formData.tindakan}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Step yang dilakukan</label>
+                <textarea
+                  name="step"
+                  rows={3}
+                  placeholder="Langkah-langkah perbaikan..."
+                  value={formData.step}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Hasil</label>
+                <input
+                  type="text"
+                  name="hasil"
+                  placeholder="Hasil akhir penanganan"
+                  value={formData.hasil}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Asset yang digunakan</label>
+                <input
+                  type="text"
+                  name="asset"
+                  placeholder="Daftar asset/komponen pengganti"
+                  value={formData.asset}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                />
+              </div>
             </div>
+
+            {/* Section 4: Penandatangan */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Tim &amp; Penandatangan</h3>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">IT Support (Parkee)</label>
+                  <input
+                    type="text"
+                    name="picParkee"
+                    placeholder="Nama Terang"
+                    value={formData.picParkee}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Jabatan Partner</label>
+                  <select
+                    name="jabatanCp"
+                    value={formData.jabatanCp}
+                    onChange={handleChange}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  >
+                    {listJabatan.map((j) => (
+                      <option key={j} value={j}>{j}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Nama Terang Partner / Manager</label>
+                <input
+                  type="text"
+                  name="picCp"
+                  placeholder="Masukkan Nama Terang"
+                  value={formData.picCp}
+                  onChange={handleChange}
+                  className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                />
+              </div>
+            </div>
+
           </div>
         </div>
 
         {/* Right Side: Document Preview / Print Area */}
-        <div className="w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white">
-          <div className="bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:p-0">
+        <div className="print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white print:overflow-visible">
+          <div id="print-document" className="print-document bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:p-0 print:w-full print:overflow-visible">
             <div>
               <div className="mb-3 flex justify-start items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

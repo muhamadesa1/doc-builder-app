@@ -12,7 +12,7 @@ export default function LiveEditor() {
     dimigrasiOleh: "",
     jamMulai: "",
     jamSelesai: "",
-    partnerCompany: "CP",
+    partnerCompany: "",
     issueSebelumMigrasi: "",
     
     unitTesting: {
@@ -76,27 +76,33 @@ export default function LiveEditor() {
 
   const listJabatan = ["PIC", "LEAD", "Area Manager", "Car Park Manager"];
 
-  const partnerConfig: Record<string, { fullName: string; code: string }> = {
-    CP: { fullName: "PT. Centrepark Citra Corpora", code: "CP" },
-    IPM: { fullName: "PT. Inovasi Parkir Mandiri", code: "IPM" },
-    UPP_DKI: { fullName: "Unit Pengelola Perparkiran Provinsi DKI Jakarta", code: "Unit Pengelola Perparkiran Provinsi DKI Jakarta" },
-    ZENITH: { fullName: "PT Zenith Indonesia Solutions", code: "PT Zenith Indonesia Solutions" },
-    TSP: { fullName: "PT Tiga Saudara Propertama", code: "PT Tiga Saudara Propertama" },
-    TMS: { fullName: "PT Tekno Mandiri Sejahtera", code: "PT Tekno Mandiri Sejahtera" },
-    SML: { fullName: "PT Semai Maju Lestari", code: "PT Semai Maju Lestari" },
-    PATRA: { fullName: "PT Patra Jasa", code: "PT Patra Jasa" },
-    BINA_WALUYA: { fullName: "PT Bina Waluya", code: "PT Bina Waluya" },
-    BANGSAWAN: { fullName: "PT Bangsawan Cyberindo Indonesia", code: "PT Bangsawan Cyberindo Indonesia" },
-    ADHI: { fullName: "PT Adhi Commuter Properti Tbk.", code: "PT Adhi Commuter Properti Tbk." },
-    UPK: { fullName: "CV Utama Persada Karya", code: "CV Utama Persada Karya" },
-    SMB: { fullName: "CV Selaras Multi Bisnis", code: "CV Selaras Multi Bisnis" },
-    AMANAH: { fullName: "PT Amanah Parking", code: "PT Amanah Parking" },
-    NUGRAH: { fullName: "PT Nugrah Tanamal", code: "PT Nugrah Tanamal" },
-    BIJAK: { fullName: "PT Bijak", code: "PT Bijak" },
-    KRIJAYA: { fullName: "PT Krijaya Tika Mandiri", code: "PT Krijaya Tika Mandiri" },
-  };
+  const partnerList = [
+    { fullName: "PT. Centrepark Citra Corpora", code: "CP" },
+    { fullName: "PT. Inovasi Parkir Mandiri", code: "IPM" },
+    { fullName: "PT Reksa Griya Antam", code: "RGA" },
+    { fullName: "Unit Pengelola Perparkiran Provinsi DKI Jakarta", code: "UPP_DKI" },
+    { fullName: "PT Zenith Indonesia Solutions", code: "ZENITH" },
+    { fullName: "PT Tiga Saudara Propertama", code: "TSP" },
+    { fullName: "PT Tekno Mandiri Sejahtera", code: "TMS" },
+    { fullName: "PT Semai Maju Lestari", code: "SML" },
+    { fullName: "PT Patra Jasa", code: "PATRA" },
+    { fullName: "PT Bina Waluya", code: "BINA_WALUYA" },
+    { fullName: "PT Bangsawan Cyberindo Indonesia", code: "BANGSAWAN" },
+    { fullName: "PT Adhi Commuter Properti Tbk.", code: "ADHI" },
+    { fullName: "CV Utama Persada Karya", code: "UPK" },
+    { fullName: "CV Selaras Multi Bisnis", code: "SMB" },
+    { fullName: "PT Amanah Parking", code: "AMANAH" },
+    { fullName: "PT Nugrah Tanamal", code: "NUGRAH" },
+    { fullName: "PT Bijak", code: "BIJAK" },
+    { fullName: "PT Krijaya Tika Mandiri", code: "KRIJAYA" },
+  ];
 
-  const currentPartner = partnerConfig[formData.partnerCompany] || partnerConfig.CP;
+  const cleanPartnerName = formData.partnerCompany.replace(/\s*\([A-Za-z0-9_-]+\)$/, "").trim();
+  const currentPartnerData = partnerList.find(
+    p => p.fullName.toLowerCase() === cleanPartnerName.toLowerCase() || p.code.toLowerCase() === formData.partnerCompany.trim().toLowerCase()
+  ) || partnerList[0];
+
+  const currentPartner = { fullName: currentPartnerData.fullName, code: currentPartnerData.code };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -112,7 +118,6 @@ export default function LiveEditor() {
     }));
   };
 
-  // Fungsi penanganan perubahan Aset (Auto 'Sesuai' saat Qty terisi)
   const handleAsetChange = (index: number, field: "qty" | "ket", rawValue: string) => {
     const updatedAset = [...formData.asetCp];
     const prevValue = updatedAset[index][field];
@@ -129,14 +134,12 @@ export default function LiveEditor() {
 
     updatedAset[index][field] = finalValue;
 
-    // Logika Otomatis: Jika Qty diubah dan terisi (selain "-"), ubah Keterangan dari "-" menjadi "Sesuai"
     if (field === "qty") {
       if (finalValue !== "-" && finalValue.trim() !== "") {
         if (updatedAset[index].ket === "-") {
           updatedAset[index].ket = "Sesuai";
         }
       } else {
-        // Jika Qty dikosongkan kembali ke "-", Keterangan balik ke "-"
         if (updatedAset[index].ket === "Sesuai") {
           updatedAset[index].ket = "-";
         }
@@ -152,170 +155,293 @@ export default function LiveEditor() {
     setFormData({ ...formData, fitur: updatedFitur });
   };
 
+  const addFitur = () => {
+    setFormData({ ...formData, fitur: [...formData.fitur, ""] });
+  };
+
+  const removeFitur = (index: number) => {
+    if (formData.fitur.length <= 5) return;
+    const updatedFitur = formData.fitur.filter((_, idx) => idx !== index);
+    setFormData({ ...formData, fitur: updatedFitur });
+  };
+
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
+      {/* Background Dot Grid Pattern */}
+      <div className="absolute inset-0 z-0 opacity-40 dark:opacity-20 pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px]" />
+
+      {/* Background Soft Glow Orb */}
+      <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-amber-200 via-rose-200 to-indigo-200 dark:from-amber-950 dark:via-rose-950 dark:to-indigo-950 blur-[130px] rounded-full pointer-events-none opacity-50 z-0" />
+
       <style jsx global>{`
         @media print {
           @page {
-            size: A4;
-            margin: 15mm 15mm 15mm 15mm;
+            size: A4 portrait;
+            margin: 0mm;
           }
+
+          html,
           body {
             background: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            overflow: visible !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
-          thead {
-            display: table-header-group;
+
+          header,
+          .print\\:hidden {
+            display: none !important;
           }
-          tr {
-            page-break-inside: avoid;
+
+          .print-preview {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+            display: block !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+          }
+
+          .print-document {
+            width: 100vw !important;
+            max-width: none !important;
+            min-width: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            box-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            padding: 8mm 10mm !important;
+            margin: 0 !important;
+            background: white !important;
           }
         }
       `}</style>
 
-      {/* Top Bar */}
-      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between sticky top-0 z-10 print:hidden">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
-            ← Kembali
-          </Link>
-          <h1 className="text-lg font-bold">Editor Berita Acara Live</h1>
+      {/* Top Navbar */}
+      <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 print:hidden">
+        <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold transition-all text-slate-700 dark:text-slate-200"
+            >
+              ← Kembali
+            </Link>
+            <div className="h-4 w-px bg-slate-300 dark:bg-slate-700" />
+            <div className="flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs">
+                🚀
+              </span>
+              <span className="font-semibold text-sm tracking-tight text-slate-700 dark:text-slate-200">
+                Berita Acara <span className="font-bold text-amber-600 dark:text-amber-400">Live Editor</span>
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => window.print()}
+            className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs rounded-full shadow transition-all duration-200 flex items-center gap-2 active:scale-95"
+          >
+            🖨️ Cetak / Save PDF
+          </button>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow transition-all flex items-center gap-2"
-        >
-          🖨️ Cetak / Save PDF
-        </button>
       </header>
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden z-10">
+        
         {/* Left Side: Form Input */}
-        <div className="w-full md:w-5/12 p-6 overflow-y-auto border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 print:hidden space-y-6">
-          <h2 className="text-xl font-bold text-indigo-600">Form Input Data Live</h2>
+        <div className="w-full md:w-5/12 p-6 overflow-y-auto border-r border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md print:hidden space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <span className="text-[10px] font-bold tracking-wider uppercase text-amber-600 dark:text-amber-400 opacity-90">
+                Editor Form
+              </span>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white mt-0.5 tracking-tight">
+                Form Input Data Live
+              </h2>
+            </div>
+            <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[11px] font-medium rounded-lg">
+              Live Preview
+            </span>
+          </div>
 
-          <div className="p-3 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-lg">
-            <label className="block font-bold mb-1 text-indigo-700 dark:text-indigo-300 text-xs">
-              Perusahaan Partner / Mitra
+          {/* Section Partner */}
+          <div className="p-4 bg-amber-50/50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50 rounded-2xl space-y-2">
+            <label className="block font-bold text-amber-900 dark:text-amber-300 text-xs uppercase tracking-wider">
+              Perusahaan Partner / Mitra (Ketik inisial cth: CP, RGA)
             </label>
-            <select
+            <input
+              type="text"
               name="partnerCompany"
+              list="partner-list-live"
               value={formData.partnerCompany}
               onChange={handleChange}
-              className="w-full p-2 border rounded-lg bg-white dark:bg-slate-800 text-sm font-semibold"
-            >
-              {Object.keys(partnerConfig).map((key) => (
-                <option key={key} value={key}>{partnerConfig[key].fullName}</option>
+              placeholder="Ketik inisial (Default: CP)..."
+              className="w-full p-3 border border-amber-200 dark:border-amber-800 rounded-xl bg-white dark:bg-slate-800 text-sm font-semibold outline-none focus:ring-2 focus:ring-amber-500 shadow-sm transition-all"
+            />
+            <datalist id="partner-list-live">
+              {partnerList.map((item, idx) => (
+                <option key={idx} value={`${item.fullName} (${item.code})`} />
               ))}
-            </select>
+            </datalist>
           </div>
 
-          <div className="space-y-3 text-sm">
+          {/* Section Waktu & Lokasi */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Waktu &amp; Lokasi</h3>
+
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="block font-medium mb-1">Hari</label>
-                <input type="text" name="hari" placeholder="Senin" value={formData.hari} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Hari</label>
+                <input type="text" name="hari" placeholder="Senin" value={formData.hari} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
               </div>
               <div>
-                <label className="block font-medium mb-1">Tanggal</label>
-                <input type="text" name="tanggal" placeholder="15 Agustus" value={formData.tanggal} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Tanggal</label>
+                <input type="text" name="tanggal" placeholder="15 Agustus" value={formData.tanggal} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
               </div>
               <div>
-                <label className="block font-medium mb-1">Tahun</label>
-                <input type="text" name="tahun" value={formData.tahun} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Tahun</label>
+                <input type="text" name="tahun" value={formData.tahun} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
               </div>
             </div>
 
             <div>
-              <label className="block font-medium mb-1">Lokasi Parkir</label>
-              <input type="text" name="lokasi" placeholder="Nama Lokasi" value={formData.lokasi} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+              <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Lokasi Parkir</label>
+              <input type="text" name="lokasi" placeholder="Nama Lokasi" value={formData.lokasi} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
             </div>
 
             <div>
-              <label className="block font-medium mb-1">Dimigrasi Oleh</label>
-              <input type="text" name="dimigrasiOleh" placeholder="Nama Personil IAI" value={formData.dimigrasiOleh} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+              <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Dimigrasi Oleh</label>
+              <input type="text" name="dimigrasiOleh" placeholder="Nama Personil IAI" value={formData.dimigrasiOleh} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-medium mb-1">Jam Mulai</label>
-                <input type="time" name="jamMulai" value={formData.jamMulai} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Jam Mulai</label>
+                <input type="time" name="jamMulai" value={formData.jamMulai} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
               </div>
               <div>
-                <label className="block font-medium mb-1">Jam Selesai</label>
-                <input type="time" name="jamSelesai" value={formData.jamSelesai} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Jam Selesai</label>
+                <input type="time" name="jamSelesai" value={formData.jamSelesai} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-amber-500 shadow-sm" />
               </div>
             </div>
 
             <div>
-              <label className="block font-medium mb-1">Issue Sebelum Migrasi</label>
-              <textarea name="issueSebelumMigrasi" rows={2} placeholder="Catatan issue sebelum migrasi..." value={formData.issueSebelumMigrasi} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+              <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Issue Sebelum Migrasi</label>
+              <textarea name="issueSebelumMigrasi" rows={2} placeholder="Catatan issue sebelum migrasi..." value={formData.issueSebelumMigrasi} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-amber-500 shadow-sm resize-none" />
             </div>
           </div>
 
-          <div className="border-t pt-4 space-y-3">
-            <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">Kondisi Harddisk Server</h3>
+          {/* Section Harddisk Server */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-3">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Kondisi Harddisk Server</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <input type="text" placeholder="Health (%)" value={formData.hddServer.health} onChange={(e) => handleNestedChange("hddServer", "health", e.target.value)} className="p-2 border rounded bg-slate-50 dark:bg-slate-700" />
-              <input type="text" placeholder="Performance (%)" value={formData.hddServer.performance} onChange={(e) => handleNestedChange("hddServer", "performance", e.target.value)} className="p-2 border rounded bg-slate-50 dark:bg-slate-700" />
-              <input type="text" placeholder="Est. Time (Days)" value={formData.hddServer.estTime} onChange={(e) => handleNestedChange("hddServer", "estTime", e.target.value)} className="p-2 border rounded bg-slate-50 dark:bg-slate-700" />
-              <input type="text" placeholder="Bad Sector" value={formData.hddServer.badSector} onChange={(e) => handleNestedChange("hddServer", "badSector", e.target.value)} className="p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+              <input type="text" placeholder="Health (%)" value={formData.hddServer.health} onChange={(e) => handleNestedChange("hddServer", "health", e.target.value)} className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
+              <input type="text" placeholder="Performance (%)" value={formData.hddServer.performance} onChange={(e) => handleNestedChange("hddServer", "performance", e.target.value)} className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
+              <input type="text" placeholder="Est. Time (Days)" value={formData.hddServer.estTime} onChange={(e) => handleNestedChange("hddServer", "estTime", e.target.value)} className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
+              <input type="text" placeholder="Bad Sector" value={formData.hddServer.badSector} onChange={(e) => handleNestedChange("hddServer", "badSector", e.target.value)} className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
             </div>
           </div>
 
-          <div className="border-t pt-4 space-y-3">
-            <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">Jumlah PC Yang Diinstall</h3>
+          {/* Section Jumlah PC */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-3">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Jumlah PC Yang Diinstall</h3>
             <div className="grid grid-cols-3 gap-2 text-sm">
-              <input type="text" placeholder="Pintu Masuk" value={formData.pcInstalled.masuk} onChange={(e) => handleNestedChange("pcInstalled", "masuk", e.target.value)} className="p-2 border rounded bg-slate-50 dark:bg-slate-700" />
-              <input type="text" placeholder="Pintu Keluar" value={formData.pcInstalled.keluar} onChange={(e) => handleNestedChange("pcInstalled", "keluar", e.target.value)} className="p-2 border rounded bg-slate-50 dark:bg-slate-700" />
-              <input type="text" placeholder="Server/Admin" value={formData.pcInstalled.serverAdmin} onChange={(e) => handleNestedChange("pcInstalled", "serverAdmin", e.target.value)} className="p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+              <input type="text" placeholder="Pintu Masuk" value={formData.pcInstalled.masuk} onChange={(e) => handleNestedChange("pcInstalled", "masuk", e.target.value)} className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
+              <input type="text" placeholder="Pintu Keluar" value={formData.pcInstalled.keluar} onChange={(e) => handleNestedChange("pcInstalled", "keluar", e.target.value)} className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
+              <input type="text" placeholder="Server/Admin" value={formData.pcInstalled.serverAdmin} onChange={(e) => handleNestedChange("pcInstalled", "serverAdmin", e.target.value)} className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
             </div>
-            <input type="text" placeholder="Keterangan Gate Aktif" value={formData.pcInstalled.keterangan} onChange={(e) => handleNestedChange("pcInstalled", "keterangan", e.target.value)} className="w-full p-2 border rounded text-sm bg-slate-50 dark:bg-slate-700" />
+            <input type="text" placeholder="Keterangan Gate Aktif" value={formData.pcInstalled.keterangan} onChange={(e) => handleNestedChange("pcInstalled", "keterangan", e.target.value)} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none shadow-sm" />
           </div>
 
-          <div className="border-t pt-4 space-y-3">
-            <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">List Versi & Fitur</h3>
-            <input type="text" placeholder="Versi (cth: v2.1.0)" value={formData.versi} onChange={(e) => setFormData({ ...formData, versi: e.target.value })} className="w-full p-2 border rounded text-sm bg-slate-50 dark:bg-slate-700 mb-2" />
-            {formData.fitur.map((item, idx) => (
-              <input key={idx} type="text" placeholder={`Fitur ${idx + 1}`} value={item} onChange={(e) => handleFiturChange(idx, e.target.value)} className="w-full p-2 border rounded text-sm bg-slate-50 dark:bg-slate-700 mb-1" />
-            ))}
-          </div>
-
-          {/* Kolom Aset CP */}
-          <div className="border-t pt-4 space-y-3">
-            <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">Input Aset {currentPartner.code} Yang Digantikan</h3>
-            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-              {formData.asetCp.map((item, idx) => (
-                <div key={idx} className="flex gap-2 items-center text-xs">
-                  <span className="w-1/2 truncate font-medium">{item.name}</span>
-                  <input type="text" placeholder="Qty" value={item.qty} onChange={(e) => handleAsetChange(idx, "qty", e.target.value)} className="w-16 p-1 border rounded bg-slate-50 dark:bg-slate-700 text-center" />
-                  <input type="text" placeholder="Ket" value={item.ket} onChange={(e) => handleAsetChange(idx, "ket", e.target.value)} className="flex-1 p-1 border rounded bg-slate-50 dark:bg-slate-700" />
+          {/* Section Versi & Fitur */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">List Versi &amp; Fitur</h3>
+              <button
+                type="button"
+                onClick={addFitur}
+                className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-600 dark:bg-amber-950 dark:hover:bg-amber-900 dark:text-amber-300 font-bold text-xs rounded-lg border border-amber-200 dark:border-amber-800 transition-all flex items-center gap-1"
+              >
+                + Tambah Fitur
+              </button>
+            </div>
+            <input type="text" placeholder="Versi (cth: v2.1.0)" value={formData.versi} onChange={(e) => setFormData({ ...formData, versi: e.target.value })} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none shadow-sm mb-2" />
+            <div className="space-y-1.5">
+              {formData.fitur.map((item, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    placeholder={`Fitur ${idx + 1}`}
+                    value={item}
+                    onChange={(e) => handleFiturChange(idx, e.target.value)}
+                    className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 outline-none shadow-sm"
+                  />
+                  {formData.fitur.length > 5 && (
+                    <button
+                      type="button"
+                      onClick={() => removeFitur(idx)}
+                      className="px-3 py-3 bg-rose-100 hover:bg-rose-200 text-rose-600 dark:bg-rose-950 dark:text-rose-300 font-bold text-xs rounded-xl border border-rose-200 dark:border-rose-800 transition-all"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="border-t pt-4 grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <label className="block font-medium mb-1">Nama IT Support (IAI)</label>
-              <input type="text" value={formData.picParkee} onChange={(e) => setFormData({ ...formData, picParkee: e.target.value })} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Jabatan Partner</label>
-              <select name="jabatanCp" value={formData.jabatanCp} onChange={handleChange} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700 font-semibold">
-                {listJabatan.map(j => <option key={j} value={j}>{j}</option>)}
-              </select>
+          {/* Section Aset Partner Digantikan */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-3">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Input Aset {currentPartner.code} Yang Digantikan</h3>
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+              {formData.asetCp.map((item, idx) => (
+                <div key={idx} className="flex gap-2 items-center text-xs">
+                  <span className="w-1/2 truncate font-medium text-slate-700 dark:text-slate-300">{item.name}</span>
+                  <input type="text" placeholder="Qty" value={formData.asetCp[idx].qty} onChange={(e) => handleAsetChange(idx, "qty", e.target.value)} className="w-16 p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-center outline-none shadow-sm" />
+                  <input type="text" placeholder="Ket" value={formData.asetCp[idx].ket} onChange={(e) => handleAsetChange(idx, "ket", e.target.value)} className="flex-1 p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 outline-none shadow-sm" />
+                </div>
+              ))}
             </div>
           </div>
-          <div>
-            <label className="block font-medium mb-1 text-sm">Nama Terang Partner</label>
-            <input type="text" value={formData.picCp} onChange={(e) => setFormData({ ...formData, picCp: e.target.value })} className="w-full p-2 border rounded bg-slate-50 dark:bg-slate-700" />
+
+          {/* Section Penandatangan */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Tim &amp; Penandatangan</h3>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">IT Support (IAI)</label>
+                <input type="text" value={formData.picParkee} onChange={(e) => setFormData({ ...formData, picParkee: e.target.value })} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
+              </div>
+              <div>
+                <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Jabatan Partner</label>
+                <select name="jabatanCp" value={formData.jabatanCp} onChange={handleChange} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm font-semibold outline-none shadow-sm">
+                  {listJabatan.map(j => <option key={j} value={j}>{j}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block font-medium mb-1.5 text-xs text-slate-600 dark:text-slate-400">Nama Terang Partner</label>
+              <input type="text" value={formData.picCp} onChange={(e) => setFormData({ ...formData, picCp: e.target.value })} className="w-full p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-sm outline-none shadow-sm" />
+            </div>
           </div>
         </div>
 
         {/* Right Side: Document Preview / Print Area */}
-        <div className="w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white">
-          <div className="bg-white text-slate-900 px-10 pt-6 pb-10 shadow-xl border rounded-sm w-full max-w-[210mm] text-[11px] leading-snug font-sans print:shadow-none print:border-none print:p-0">
+        <div className="print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white print:overflow-visible">
+          <div id="print-document" className="print-document bg-white text-slate-900 px-10 pt-6 pb-10 shadow-xl border rounded-sm w-full max-w-[210mm] text-[11px] leading-snug font-sans print:shadow-none print:border-none print:p-0 print:w-full print:overflow-visible">
             
             <table className="w-full border-none">
               <thead>
