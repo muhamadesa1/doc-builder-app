@@ -51,15 +51,15 @@ export default function HomePage() {
             <div className="mt-4 text-indigo-600 dark:text-indigo-400 text-xs font-bold">Buka Template →</div>
           </Link>
 
-          {/* Berita Acara Live Reader */}
-          <Link href="/editor/live-reader" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition flex flex-col justify-between">
+          {/* Berita Acara Maintenance */}
+          <Link href="/editor/ba-maintanance" className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-center mb-3">
-                <span className="text-2xl">📡</span>
-                <span className="bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full">Monitoring & Integrasi</span>
+                <span className="text-2xl">🔧</span>
+                <span className="bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full">Maintenance Lokasi</span>
               </div>
-              <h2 className="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Berita Acara Live Reader</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">Dokumen hasil pengetesan dan verifikasi operasional perangkat pembaca (reader hardware/RFID) yang sudah aktif.</p>
+              <h2 className="font-bold text-slate-800 dark:text-slate-100 text-base mb-1">Berita Acara Maintenance</h2>
+              <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">Dokumen kegiatan pemeliharaan, penanganan issue sistem/non-sistem, serta pencatatan peminjaman aset.</p>
             </div>
             <div className="mt-4 text-indigo-600 dark:text-indigo-400 text-xs font-bold">Buka Template →</div>
           </Link>
