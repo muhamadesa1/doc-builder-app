@@ -159,10 +159,11 @@ export default function VisualPDFEditor() {
       fabricCanvas.current.discardActiveObject();
       fabricCanvas.current.requestRenderAll();
 
+      // FIXED: Menambahkan multiplier: 1 agar sesuai dengan tipe data TDataUrlOptions di Fabric.js terbaru
       const dataURL = fabricCanvas.current.toDataURL({
         format: "png",
         quality: 1.0,
-        multiplier: 1, // Parameter multiplier ditambahkan untuk mengatasi error TypeScript
+        multiplier: 1,
       });
 
       const canvasWidth = fabricCanvas.current.width || 1000;
