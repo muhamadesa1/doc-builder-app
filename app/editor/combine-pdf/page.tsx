@@ -4,15 +4,17 @@ import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { PDFDocument } from "pdf-lib";
 
-interface PDFFileItem {
+interface FileItem {
   id: string;
   file: File;
   name: string;
   size: string;
+  isImage: boolean;
+  previewUrl?: string;
 }
 
 export default function CombinePdfPage() {
-  const [pdfFiles, setPdfFiles] = useState<PDFFileItem[]>([]);
+  const [fileList, setFileList] = useState<FileItem[]>([]);
   const [isMerging, setIsMerging] = useState(false);
   const [isDraggingOverBox, setIsDraggingOverBox] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -25,40 +27,41 @@ export default function CombinePdfPage() {
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
-  // Handle pilih file dari input
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       addFiles(Array.from(e.target.files));
     }
   };
 
-  // Tambahkan file ke state
   const addFiles = (files: File[]) => {
-    const validPdfs = files.filter(
-      (f) => f.type === "application/pdf" || f.name.endsWith(".pdf")
+    const validFiles = files.filter(
+      (f) =>
+        f.type === "application/pdf" ||
+        f.type.startsWith("image/") ||
+        f.name.endsWith(".pdf")
     );
 
-    const newItems: PDFFileItem[] = validPdfs.map((file) => ({
-      id: Math.random().toString(36).substring(2, 9),
-      file,
-      name: file.name,
-      size: formatSize(file.size),
-    }));
+    const newItems: FileItem[] = validFiles.map((file) => {
+      const isImage = file.type.startsWith("image/");
+      return {
+        id: Math.random().toString(36).substring(2, 9),
+        file,
+        name: file.name,
+        size: formatSize(file.size),
+        isImage,
+        previewUrl: isImage ? URL.createObjectURL(file) : undefined,
+      };
+    });
 
-    setPdfFiles((prev) => [...prev, ...newItems]);
+    setFileList((prev) => [...prev, ...newItems]);
   };
 
-  // External Dropzone handlers (Upload File Baru dari Komputer)
   const handleBoxDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    if (draggedIndex === null) {
-      setIsDraggingOverBox(true);
-    }
+    if (draggedIndex === null) setIsDraggingOverBox(true);
   };
 
-  const handleBoxDragLeave = () => {
-    setIsDraggingOverBox(false);
-  };
+  const handleBoxDragLeave = () => setIsDraggingOverBox(false);
 
   const handleBoxDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -68,52 +71,50 @@ export default function CombinePdfPage() {
     }
   };
 
-  // Re-order Drag & Drop handlers (Geser kartu PDF depan-belakang)
-  const handleItemDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
+  const handleItemDragStart = (index: number) => setDraggedIndex(index);
 
   const handleItemDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === index) return;
 
-    const updated = [...pdfFiles];
+    const updated = [...fileList];
     const [draggedItem] = updated.splice(draggedIndex, 1);
     updated.splice(index, 0, draggedItem);
 
     setDraggedIndex(index);
-    setPdfFiles(updated);
+    setFileList(updated);
   };
 
-  const handleItemDragEnd = () => {
-    setDraggedIndex(null);
-  };
+  const handleItemDragEnd = () => setDraggedIndex(null);
 
-  // Hapus satu file
   const removeFile = (id: string) => {
-    setPdfFiles((prev) => prev.filter((f) => f.id !== id));
+    setFileList((prev) => {
+      const target = prev.find((item) => item.id === id);
+      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((item) => item.id !== id);
+    });
   };
 
-  // Hapus semua file
   const clearAllFiles = () => {
-    setPdfFiles([]);
+    fileList.forEach((item) => {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    });
+    setFileList([]);
   };
 
-  // Pindahkan urutan via tombol panah (Opsional)
   const moveFile = (index: number, direction: "left" | "right") => {
     const targetIndex = direction === "left" ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= pdfFiles.length) return;
+    if (targetIndex < 0 || targetIndex >= fileList.length) return;
 
-    const updated = [...pdfFiles];
+    const updated = [...fileList];
     const [movedItem] = updated.splice(index, 1);
     updated.splice(targetIndex, 0, movedItem);
-    setPdfFiles(updated);
+    setFileList(updated);
   };
 
-  // Proses Penggabungan PDF
-  const handleCombinePDF = async () => {
-    if (pdfFiles.length < 2) {
-      alert("Pilih minimal 2 file PDF untuk digabungkan!");
+  const handleCombine = async () => {
+    if (fileList.length < 2) {
+      alert("Pilih minimal 2 file untuk digabungkan!");
       return;
     }
 
@@ -121,30 +122,55 @@ export default function CombinePdfPage() {
     try {
       const mergedPdf = await PDFDocument.create();
 
-      for (const item of pdfFiles) {
+      for (const item of fileList) {
         const arrayBuffer = await item.file.arrayBuffer();
-        const pdf = await PDFDocument.load(arrayBuffer);
-        const copiedPages = await mergedPdf.copyPages(
-          pdf,
-          pdf.getPageIndices()
-        );
-        copiedPages.forEach((page) => mergedPdf.addPage(page));
+
+        if (item.isImage) {
+          let image;
+          if (item.file.type === "image/png") {
+            image = await mergedPdf.embedPng(arrayBuffer);
+          } else {
+            image = await mergedPdf.embedJpg(arrayBuffer);
+          }
+
+          const page = mergedPdf.addPage([595.28, 841.89]);
+          const { width, height } = page.getSize();
+          const imgDims = image.scaleToFit(width - 40, height - 40);
+
+          page.drawImage(image, {
+            x: width / 2 - imgDims.width / 2,
+            y: height / 2 - imgDims.height / 2,
+            width: imgDims.width,
+            height: imgDims.height,
+          });
+        } else {
+          const pdf = await PDFDocument.load(arrayBuffer);
+          const copiedPages = await mergedPdf.copyPages(
+            pdf,
+            pdf.getPageIndices()
+          );
+          copiedPages.forEach((page) => mergedPdf.addPage(page));
+        }
       }
 
       const mergedPdfBytes = await mergedPdf.save();
-      const blob = new Blob([mergedPdfBytes.buffer], { type: "application/pdf" });
+
+      // FIX TYPE SCRIPT ERROR VERCEL BUILD DI SINI:
+      const blob = new Blob([new Uint8Array(mergedPdfBytes)], {
+        type: "application/pdf",
+      });
       const url = URL.createObjectURL(blob);
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = "Combined_Dokumen_BA.pdf";
+      a.download = "Combined_Dokumen_Berita_Acara.pdf";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Gagal menggabungkan PDF:", err);
-      alert("Terjadi kesalahan saat menggabungkan file PDF.");
+      console.error("Gagal menggabungkan file:", err);
+      alert("Terjadi kesalahan saat menggabungkan file.");
     } finally {
       setIsMerging(false);
     }
@@ -152,7 +178,6 @@ export default function CombinePdfPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col select-none">
-      {/* Top Navigation */}
       <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <Link
@@ -161,40 +186,37 @@ export default function CombinePdfPage() {
           >
             ← Kembali
           </Link>
-          <h1 className="text-lg font-bold">Combine PDF Tool</h1>
+          <h1 className="text-lg font-bold">Combine PDF &amp; Gambar</h1>
         </div>
       </header>
 
-      {/* Main Container */}
       <main className="flex-1 max-w-5xl w-full mx-auto p-6 flex flex-col items-center">
-        {/* Title Banner */}
         <div className="text-center my-6 space-y-2">
           <h1 className="text-4xl font-extrabold tracking-tight">
-            Combine <span className="text-red-500">PDF</span>
+            Combine <span className="text-rose-600">PDF &amp; Image</span>
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl">
-            Gabungkan beberapa file PDF Berita Acara menjadi satu dokumen PDF dengan mudah.
+            Gabungkan file PDF dan Gambar (JPG/PNG) Berita Acara menjadi satu dokumen PDF.
             Unggah file, <strong>geser kartu untuk atur urutan</strong>, lalu klik <strong>Gabungkan</strong>.
           </p>
         </div>
 
-        {/* Action Bar (Upload & Clear Buttons) */}
         <div className="flex items-center gap-3 mb-4 w-full max-w-3xl justify-center">
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileSelect}
             multiple
-            accept="application/pdf"
+            accept="application/pdf,image/png,image/jpeg,image/jpg,image/webp"
             className="hidden"
           />
           <button
             onClick={() => fileInputRef.current?.click()}
             className="px-6 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold text-sm rounded-md shadow transition-all flex items-center gap-2 uppercase tracking-wide"
           >
-            📤 UNGGAH FILE
+            📤 UNGGAH FILE (PDF / GAMBAR)
           </button>
-          {pdfFiles.length > 0 && (
+          {fileList.length > 0 && (
             <button
               onClick={clearAllFiles}
               className="px-5 py-2.5 bg-rose-400 hover:bg-rose-500 text-white font-bold text-sm rounded-md shadow transition-all flex items-center gap-2 uppercase tracking-wide"
@@ -204,7 +226,6 @@ export default function CombinePdfPage() {
           )}
         </div>
 
-        {/* Dropzone Box */}
         <div
           onDragOver={handleBoxDragOver}
           onDragLeave={handleBoxDragLeave}
@@ -215,18 +236,18 @@ export default function CombinePdfPage() {
               : "border-sky-300 dark:border-slate-600"
           }`}
         >
-          {pdfFiles.length === 0 ? (
+          {fileList.length === 0 ? (
             <div className="text-center space-y-2 pointer-events-none">
               <p className="text-sky-400 dark:text-sky-500 text-lg font-medium">
-                Letakkan File PDF Anda Di Sini
+                Letakkan File PDF / Gambar Anda Di Sini
               </p>
               <p className="text-xs text-slate-400">
-                Atau klik tombol <strong>Unggah File</strong> di atas
+                Mendukung format <strong>.pdf, .jpg, .png</strong>
               </p>
             </div>
           ) : (
             <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {pdfFiles.map((item, index) => (
+              {fileList.map((item, index) => (
                 <div
                   key={item.id}
                   draggable
@@ -239,7 +260,6 @@ export default function CombinePdfPage() {
                       : "border-slate-200 dark:border-slate-600"
                   }`}
                 >
-                  {/* Remove Button */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -251,12 +271,19 @@ export default function CombinePdfPage() {
                     ✕
                   </button>
 
-                  {/* Thumbnail Icon */}
-                  <div className="w-12 h-14 bg-red-500 rounded text-white flex items-center justify-center font-bold text-xs mb-2 shadow-sm pointer-events-none">
-                    PDF
-                  </div>
+                  {item.isImage && item.previewUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.previewUrl}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded mb-2 shadow-sm pointer-events-none"
+                    />
+                  ) : (
+                    <div className="w-12 h-14 bg-red-500 rounded text-white flex items-center justify-center font-bold text-xs mb-2 shadow-sm pointer-events-none">
+                      PDF
+                    </div>
+                  )}
 
-                  {/* File Info */}
                   <p className="text-xs font-semibold truncate w-full text-slate-700 dark:text-slate-200 pointer-events-none">
                     {item.name}
                   </p>
@@ -264,7 +291,6 @@ export default function CombinePdfPage() {
                     {item.size}
                   </p>
 
-                  {/* Move Left/Right Controls */}
                   <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-600 w-full justify-center">
                     <button
                       onClick={(e) => {
@@ -273,7 +299,6 @@ export default function CombinePdfPage() {
                       }}
                       disabled={index === 0}
                       className="px-2 py-0.5 text-xs bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 disabled:opacity-30 rounded"
-                      title="Geser ke kiri"
                     >
                       ←
                     </button>
@@ -285,9 +310,8 @@ export default function CombinePdfPage() {
                         e.stopPropagation();
                         moveFile(index, "right");
                       }}
-                      disabled={index === pdfFiles.length - 1}
+                      disabled={index === fileList.length - 1}
                       className="px-2 py-0.5 text-xs bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 disabled:opacity-30 rounded"
-                      title="Geser ke kanan"
                     >
                       →
                     </button>
@@ -298,14 +322,13 @@ export default function CombinePdfPage() {
           )}
         </div>
 
-        {/* Merge Button */}
         <div className="mt-6">
           <button
-            onClick={handleCombinePDF}
-            disabled={pdfFiles.length < 2 || isMerging}
+            onClick={handleCombine}
+            disabled={fileList.length < 2 || isMerging}
             className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 text-white font-extrabold text-sm rounded-md shadow-md transition-all uppercase tracking-wider disabled:cursor-not-allowed"
           >
-            {isMerging ? "⏳ MENGGABUNGKAN..." : "⚙️ GABUNGKAN PDF"}
+            {isMerging ? "⏳ MENGGABUNGKAN..." : "⚙️ GABUNGKAN SEKARANG"}
           </button>
         </div>
       </main>
