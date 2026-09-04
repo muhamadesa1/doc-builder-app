@@ -84,6 +84,7 @@ export default function TroubleshootEditor() {
             lokasi={formData.lokasi}
             tanggal={formData.tanggal}
             summaryText={`Issue: ${formData.issueType || "-"}\nHasil: ${formData.hasil || "-"}`}
+            elementId="ba-preview-doc"
           />
           <button
             onClick={() => window.print()}
@@ -302,7 +303,7 @@ export default function TroubleshootEditor() {
 
         {/* Right Side: Document Preview / Print Area */}
         <div className="w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white">
-          <div className="bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:p-0">
+          <div id="ba-preview-doc" className="bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:p-0">
             <div>
               <div className="mb-3 flex justify-start items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
