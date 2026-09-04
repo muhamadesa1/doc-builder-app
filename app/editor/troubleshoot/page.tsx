@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import ShareWhatsAppButton from "@/components/ShareWhatsAppButton";
 
 export default function TroubleshootEditor() {
   const [formData, setFormData] = useState({
@@ -75,12 +76,22 @@ export default function TroubleshootEditor() {
           </Link>
           <h1 className="text-lg font-bold">Editor Berita Acara Troubleshoot</h1>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow transition-all flex items-center gap-2"
-        >
-          🖨️ Cetak / Save PDF
-        </button>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <ShareWhatsAppButton
+            title="Berita Acara Troubleshoot"
+            lokasi={formData.lokasi}
+            tanggal={formData.tanggal}
+            summaryText={`Issue: ${formData.issueType || "-"}\nHasil: ${formData.hasil || "-"}`}
+          />
+          <button
+            onClick={() => window.print()}
+            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow transition-all flex items-center gap-2"
+          >
+            🖨️ Cetak / Save PDF
+          </button>
+        </div>
       </header>
 
       {/* Main Workspace */}
