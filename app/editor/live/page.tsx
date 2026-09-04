@@ -51,21 +51,21 @@ export default function LiveEditor() {
     },
 
     asetCp: [
-      { name: "Booster", qty: "", ket: "" },
-      { name: "Interface", qty: "", ket: "" },
-      { name: "Speaker", qty: "", ket: "" },
-      { name: "Amplifier", qty: "", ket: "" },
-      { name: "PC Server / PC Client / PC Admin", qty: "", ket: "" },
-      { name: "HDD / SSD", qty: "", ket: "" },
-      { name: "PCI-E Serial 2 / 4 Port", qty: "", ket: "" },
-      { name: "Kabel Serial Printer", qty: "", ket: "" },
-      { name: "RFI DE – ABCMI", qty: "", ket: "" },
-      { name: "STI NFC pad / STI Lama", qty: "", ket: "" },
-      { name: "Reader Promag", qty: "", ket: "" },
-      { name: "Scanner Symbol / Honeywell", qty: "", ket: "" },
-      { name: "Webcam / IP Cam", qty: "", ket: "" },
-      { name: "Switch Hub", qty: "", ket: "" },
-      { name: "Printer", qty: "", ket: "" },
+      { name: "Booster", qty: "-", ket: "-" },
+      { name: "Interface", qty: "-", ket: "-" },
+      { name: "Speaker", qty: "-", ket: "-" },
+      { name: "Amplifier", qty: "-", ket: "-" },
+      { name: "PC Server / PC Client / PC Admin", qty: "-", ket: "-" },
+      { name: "HDD / SSD", qty: "-", ket: "-" },
+      { name: "PCI-E Serial 2 / 4 Port", qty: "-", ket: "-" },
+      { name: "Kabel Serial Printer", qty: "-", ket: "-" },
+      { name: "RFI DE – ABCMI", qty: "-", ket: "-" },
+      { name: "STI NFC pad / STI Lama", qty: "-", ket: "-" },
+      { name: "Reader Promag", qty: "-", ket: "-" },
+      { name: "Scanner Symbol / Honeywell", qty: "-", ket: "-" },
+      { name: "Webcam / IP Cam", qty: "-", ket: "-" },
+      { name: "Switch Hub", qty: "-", ket: "-" },
+      { name: "Printer", qty: "-", ket: "-" },
     ],
 
     notes: "",
@@ -112,9 +112,37 @@ export default function LiveEditor() {
     }));
   };
 
-  const handleAsetChange = (index: number, field: "qty" | "ket", value: string) => {
+  // Fungsi penanganan perubahan Aset (Auto 'Sesuai' saat Qty terisi)
+  const handleAsetChange = (index: number, field: "qty" | "ket", rawValue: string) => {
     const updatedAset = [...formData.asetCp];
-    updatedAset[index][field] = value;
+    const prevValue = updatedAset[index][field];
+
+    let finalValue = rawValue;
+
+    if (prevValue === "-" && rawValue.length > 1) {
+      finalValue = rawValue.replace("-", "");
+    }
+
+    if (finalValue.trim() === "") {
+      finalValue = "-";
+    }
+
+    updatedAset[index][field] = finalValue;
+
+    // Logika Otomatis: Jika Qty diubah dan terisi (selain "-"), ubah Keterangan dari "-" menjadi "Sesuai"
+    if (field === "qty") {
+      if (finalValue !== "-" && finalValue.trim() !== "") {
+        if (updatedAset[index].ket === "-") {
+          updatedAset[index].ket = "Sesuai";
+        }
+      } else {
+        // Jika Qty dikosongkan kembali ke "-", Keterangan balik ke "-"
+        if (updatedAset[index].ket === "Sesuai") {
+          updatedAset[index].ket = "-";
+        }
+      }
+    }
+
     setFormData({ ...formData, asetCp: updatedAset });
   };
 
@@ -253,13 +281,14 @@ export default function LiveEditor() {
             ))}
           </div>
 
+          {/* Kolom Aset CP */}
           <div className="border-t pt-4 space-y-3">
             <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">Input Aset {currentPartner.code} Yang Digantikan</h3>
             <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
               {formData.asetCp.map((item, idx) => (
                 <div key={idx} className="flex gap-2 items-center text-xs">
                   <span className="w-1/2 truncate font-medium">{item.name}</span>
-                  <input type="text" placeholder="Qty" value={item.qty} onChange={(e) => handleAsetChange(idx, "qty", e.target.value)} className="w-16 p-1 border rounded bg-slate-50 dark:bg-slate-700" />
+                  <input type="text" placeholder="Qty" value={item.qty} onChange={(e) => handleAsetChange(idx, "qty", e.target.value)} className="w-16 p-1 border rounded bg-slate-50 dark:bg-slate-700 text-center" />
                   <input type="text" placeholder="Ket" value={item.ket} onChange={(e) => handleAsetChange(idx, "ket", e.target.value)} className="flex-1 p-1 border rounded bg-slate-50 dark:bg-slate-700" />
                 </div>
               ))}
@@ -514,7 +543,6 @@ export default function LiveEditor() {
                 </tr>
               </tbody>
             </table>
-
           </div>
         </div>
       </div>
