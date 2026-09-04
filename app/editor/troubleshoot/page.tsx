@@ -313,15 +313,20 @@ export default function TroubleshootEditor() {
                 <div className="flex"><span className="w-40 font-semibold">Jam Mulai</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.jamMulai}</span></div>
                 <div className="flex"><span className="w-40 font-semibold">Jam Selesai</span><span className="w-6 text-center">:</span><span className="flex-1">{formData.jamSelesai}</span></div>
                 
+                {/* Issue dengan Text Checkbox [ X ] */}
                 <div className="flex items-center">
                   <span className="w-40 font-semibold">Issue</span><span className="w-6 text-center">:</span>
                   <div className="flex items-center gap-8">
                     <button type="button" onClick={() => toggleSelect("issueType", "Sistem")} className="flex items-center gap-2">
-                      <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.issueType === "Sistem" ? "bg-black" : "bg-white"}`}></div>
+                      <span className="font-mono font-bold text-base">
+                        {formData.issueType === "Sistem" ? "[ X ]" : "[   ]"}
+                      </span>
                       <span>Sistem</span>
                     </button>
                     <button type="button" onClick={() => toggleSelect("issueType", "Non Sistem")} className="flex items-center gap-2">
-                      <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.issueType === "Non Sistem" ? "bg-black" : "bg-white"}`}></div>
+                      <span className="font-mono font-bold text-base">
+                        {formData.issueType === "Non Sistem" ? "[ X ]" : "[   ]"}
+                      </span>
                       <span>
                         Non Sistem {showPrice ? "= Rp.350.000,-" : ""}
                       </span>
@@ -329,15 +334,20 @@ export default function TroubleshootEditor() {
                   </div>
                 </div>
 
+                {/* Tujuan Kunjungan dengan Text Checkbox [ X ] */}
                 <div className="flex items-center">
                   <span className="w-40 font-semibold">Tujuan Kunjungan</span><span className="w-6 text-center">:</span>
                   <div className="flex items-center gap-8">
                     <button type="button" onClick={() => toggleSelect("tujuanKunjungan", "Parkee")} className="flex items-center gap-2">
-                      <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.tujuanKunjungan === "Parkee" ? "bg-black" : "bg-white"}`}></div>
+                      <span className="font-mono font-bold text-base">
+                        {formData.tujuanKunjungan === "Parkee" ? "[ X ]" : "[   ]"}
+                      </span>
                       <span>Parkee</span>
                     </button>
                     <button type="button" onClick={() => toggleSelect("tujuanKunjungan", "Lain-lain")} className="flex items-center gap-2">
-                      <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.tujuanKunjungan === "Lain-lain" ? "bg-black" : "bg-white"}`}></div>
+                      <span className="font-mono font-bold text-base">
+                        {formData.tujuanKunjungan === "Lain-lain" ? "[ X ]" : "[   ]"}
+                      </span>
                       <span>Lain-lain</span>
                     </button>
                   </div>
