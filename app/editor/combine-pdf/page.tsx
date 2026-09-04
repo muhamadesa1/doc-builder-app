@@ -162,6 +162,7 @@ export default function VisualPDFEditor() {
       const dataURL = fabricCanvas.current.toDataURL({
         format: "png",
         quality: 1.0,
+        multiplier: 1, // Parameter multiplier ditambahkan untuk mengatasi error TypeScript
       });
 
       const canvasWidth = fabricCanvas.current.width || 1000;
