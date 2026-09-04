@@ -9,7 +9,7 @@ interface ShareWhatsAppButtonProps {
   lokasi?: string;
   tanggal?: string;
   summaryText?: string;
-  elementId?: string; // ID elemen HTML preview berita acara yang mau dijadiin PDF
+  elementId?: string;
 }
 
 export default function ShareWhatsAppButton({
@@ -29,45 +29,34 @@ export default function ShareWhatsAppButton({
       `Tanggal: ${tanggal}\n` +
       `Lokasi: ${lokasi}\n` +
       (summaryText ? `${summaryText}\n` : "") +
-      `\nBerikut terlampir dokumen PDF Berita Acara.`;
+      `\nDokumen PDF Berita Acara telah diunduh ke HP.`;
 
     try {
       const element = document.getElementById(elementId);
 
-      if (element && navigator.share && navigator.canShare) {
-        // 1. Render elemen dokumen menjadi Gambar/Canvas
+      if (element) {
+        // 1. Render elemen dokumen preview menjadi PDF
         const canvas = await html2canvas(element, { scale: 2, useCORS: true });
         const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
-        // 2. Buat PDF menggunakan jsPDF
         const pdf = new jsPDF("p", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
         pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
 
-        // 3. Ubah PDF menjadi File Blob
-        const pdfBlob = pdf.output("blob");
-        const pdfFile = new File([pdfBlob], fileName, { type: "application/pdf" });
-
-        // 4. Cek apakah browser HP bisa share File PDF
-        if (navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({
-            title: title,
-            text: textMessage,
-            files: [pdfFile], // <--- File PDF dikirim langsung ke WA!
-          });
-          setIsGenerating(false);
-          return;
-        }
+        // 2. Download otomatis file PDF ke HP
+        pdf.save(fileName);
       }
     } catch (err) {
-      console.log("Gagal share file PDF:", err);
+      console.log("Gagal generate PDF:", err);
     }
 
-    // Fallback jika dibuka di browser PC/Desktop yang tidak mendukung share file
-    const encodedText = encodeURIComponent(textMessage);
-    window.open(`https://wa.me/?text=${encodedText}`, "_blank");
-    setIsGenerating(false);
+    // 3. Buka WhatsApp dengan teks ringkasan
+    setTimeout(() => {
+      const encodedText = encodeURIComponent(textMessage);
+      window.open(`https://wa.me/?text=${encodedText}`, "_blank");
+      setIsGenerating(false);
+    }, 1000);
   };
 
   return (
@@ -77,7 +66,7 @@ export default function ShareWhatsAppButton({
       disabled={isGenerating}
       className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow transition-all flex items-center gap-2 disabled:opacity-50"
     >
-      {isGenerating ? "⏳ Membuat PDF..." : "📲 Share PDF ke WA"}
+      {isGenerating ? "⏳ Membuat PDF..." : "📲 Download & Share WA"}
     </button>
   );
 }
