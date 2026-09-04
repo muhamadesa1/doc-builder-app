@@ -98,7 +98,7 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-6 pt-8 pb-20 z-10">
-        {/* Hero Section dengan Ilustrasi Roket 3D */}
+        {/* Hero Section dengan Ilustrasi Roket SVG Native (100% Offline / Reliable) */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center mb-16 pt-4">
           <div className="md:col-span-7 space-y-4 text-center md:text-left">
             <span className="inline-block px-3 py-1 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-[11px] font-extrabold tracking-wider uppercase rounded-full">
@@ -115,15 +115,33 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Gambar Ilustrasi Roket SaaS 3D */}
+          {/* Inline SVG Roket */}
           <div className="md:col-span-5 flex justify-center md:justify-end relative">
-            <div className="relative w-full max-w-[340px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://cdni.iconscout.com/illustration/premium/thumb/rocket-launch-illustration-download-in-svg-png-gif-file-formats--start-up-business-space-pack-illustrations-5211068.png"
-                alt="Rocket 3D Illustration"
-                className="w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
-              />
+            <div className="relative w-full max-w-[260px] p-6 bg-gradient-to-tr from-rose-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 rounded-3xl border border-rose-100 dark:border-slate-700 shadow-xl flex items-center justify-center">
+              <svg
+                viewBox="0 0 200 200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-auto drop-shadow-md hover:scale-105 transition-transform duration-300"
+              >
+                <path
+                  d="M100 20C120 50 140 90 140 130H60C60 90 80 50 100 20Z"
+                  fill="url(#rocket_grad)"
+                />
+                <path d="M100 20L115 60H85L100 20Z" fill="#E11D48" />
+                <circle cx="100" cy="85" r="16" fill="#1E293B" stroke="#E2E8F0" strokeWidth="4" />
+                <circle cx="100" cy="85" r="8" fill="#38BDF8" />
+                <path d="M60 110L35 145V130L60 110Z" fill="#E11D48" />
+                <path d="M140 110L165 145V130L140 110Z" fill="#E11D48" />
+                <path d="M80 130L70 160H130L120 130H80Z" fill="#F59E0B" />
+                <path d="M90 160L85 180H115L110 160H90Z" fill="#EF4444" />
+                <defs>
+                  <linearGradient id="rocket_grad" x1="100" y1="20" x2="100" y2="130" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#F43F5E" />
+                    <stop offset="1" stopColor="#6366F1" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
           </div>
         </div>
