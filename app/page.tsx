@@ -69,11 +69,21 @@ const templates = [
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-hidden">
-      {/* Background Vector Dot Grid Pattern */}
+      {/* Background Dot Grid Pattern */}
       <div className="absolute inset-0 z-0 opacity-40 dark:opacity-20 pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px]" />
 
-      {/* Background Soft Glow Orbs */}
-      <div className="absolute top-[-80px] right-[10%] w-[500px] h-[350px] bg-gradient-to-tr from-purple-200 to-rose-200 dark:from-purple-950 dark:to-rose-950 blur-[120px] rounded-full pointer-events-none opacity-60 z-0" />
+      {/* Background Soft Glow Orb */}
+      <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-rose-200 via-purple-200 to-indigo-200 dark:from-rose-950 dark:via-purple-950 dark:to-indigo-950 blur-[130px] rounded-full pointer-events-none opacity-60 z-0" />
+
+      {/* Gambar Ilustrasi Roket 3D di Background */}
+      <div className="absolute top-12 left-1/2 -translate-x-1/2 z-0 opacity-20 dark:opacity-15 pointer-events-none w-[360px] md:w-[450px]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/rocket-hero.png"
+          alt="Rocket Background"
+          className="w-full h-auto object-contain blur-[1px]"
+        />
+      </div>
 
       {/* Top Navbar */}
       <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20">
@@ -96,67 +106,22 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 pt-8 pb-20 z-10">
-        {/* Hero Section dengan Ilustrasi Roket SVG Native (100% Offline / Reliable) */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center mb-16 pt-4">
-          <div className="md:col-span-7 space-y-4 text-center md:text-left">
-            <span className="inline-block px-3 py-1 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-[11px] font-extrabold tracking-wider uppercase rounded-full">
-              PARKEE • INTERNAL DOCUMENT BUILDER
-            </span>
-            <h1 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-              Aplikasi Laporan &amp; <br />
-              <span className="bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Berita Acara Digital
-              </span>
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base leading-relaxed max-w-xl">
-              Buat, cetak, dan kelola dokumen operasional lapangan secara presisi, rapi, serta cepat langsung dari perangkat kamu.
-            </p>
-          </div>
-
-          {/* Inline SVG Roket */}
-          <div className="md:col-span-5 flex justify-center md:justify-end relative">
-            <div className="relative w-full max-w-[260px] p-6 bg-gradient-to-tr from-rose-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 rounded-3xl border border-rose-100 dark:border-slate-700 shadow-xl flex items-center justify-center">
-              <svg
-                viewBox="0 0 200 200"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-full h-auto drop-shadow-md hover:scale-105 transition-transform duration-300"
-              >
-                <path
-                  d="M100 20C120 50 140 90 140 130H60C60 90 80 50 100 20Z"
-                  fill="url(#rocket_grad)"
-                />
-                <path d="M100 20L115 60H85L100 20Z" fill="#E11D48" />
-                <circle cx="100" cy="85" r="16" fill="#1E293B" stroke="#E2E8F0" strokeWidth="4" />
-                <circle cx="100" cy="85" r="8" fill="#38BDF8" />
-                <path d="M60 110L35 145V130L60 110Z" fill="#E11D48" />
-                <path d="M140 110L165 145V130L140 110Z" fill="#E11D48" />
-                <path d="M80 130L70 160H130L120 130H80Z" fill="#F59E0B" />
-                <path d="M90 160L85 180H115L110 160H90Z" fill="#EF4444" />
-                <defs>
-                  <linearGradient id="rocket_grad" x1="100" y1="20" x2="100" y2="130" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#F43F5E" />
-                    <stop offset="1" stopColor="#6366F1" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Section Title */}
-        <div className="text-center mb-10 space-y-1">
-          <div className="inline-flex items-center gap-2">
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-6 pt-6 pb-16 z-10">
+        {/* Header Judul Langsung di Atas Kartu */}
+        <div className="text-center mb-8 space-y-1.5">
+          <span className="inline-block px-3 py-1 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-300 text-[10px] font-extrabold tracking-wider uppercase rounded-full mb-1">
+            PARKEE • INTERNAL DOCUMENT BUILDER
+          </span>
+          <div className="inline-flex items-center justify-center gap-2 w-full">
             <span className="h-px w-8 bg-slate-300 dark:bg-slate-700" />
-            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               Pilih Template Berita Acara
-            </h2>
+            </h1>
             <span className="h-px w-8 bg-slate-300 dark:bg-slate-700" />
           </div>
-          <p className="text-xs text-slate-400">
-            Pilih jenis template di bawah ini untuk memulai penyuntingan.
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Pilih jenis template di bawah ini untuk memulai penyuntingan dokumen.
           </p>
         </div>
 
@@ -165,7 +130,7 @@ export default function HomePage() {
           {templates.map((item, idx) => (
             <div
               key={idx}
-              className="group relative bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1"
+              className="group relative bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1"
             >
               <div>
                 <div
@@ -201,24 +166,6 @@ export default function HomePage() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Bottom Banner Callout */}
-        <div className="mt-16 bg-slate-900 dark:bg-slate-900 text-white rounded-3xl p-8 md:p-10 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-          <div className="space-y-1 text-center md:text-left z-10">
-            <h3 className="text-xl md:text-2xl font-bold tracking-tight">
-              Butuh Menggabungkan Banyak File PDF?
-            </h3>
-            <p className="text-xs md:text-sm text-slate-400">
-              Gunakan Combine PDF Tool untuk menyatukan beberapa file dokumen &amp; gambar menjadi satu PDF.
-            </p>
-          </div>
-          <Link
-            href="/editor/combine-pdf"
-            className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all active:scale-95 shrink-0 z-10"
-          >
-            Buka Combine PDF Tool ➔
-          </Link>
         </div>
       </main>
 
