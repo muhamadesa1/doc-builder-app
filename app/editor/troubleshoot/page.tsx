@@ -58,6 +58,9 @@ export default function TroubleshootEditor() {
   };
 
   const currentPartner = partnerConfig[formData.partnerCompany] || partnerConfig.CP;
+  
+  // Cek apakah partner yang dipilih termasuk yang menampilkan harga (CP atau IPM)
+  const showPrice = formData.partnerCompany === "CP" || formData.partnerCompany === "IPM";
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 flex flex-col">
@@ -174,7 +177,9 @@ export default function TroubleshootEditor() {
                 >
                   <option value="">-- Pilih Issue --</option>
                   <option value="Sistem">Sistem</option>
-                  <option value="Non Sistem">Non Sistem = Rp.350.000,-</option>
+                  <option value="Non Sistem">
+                    Non Sistem {showPrice ? "= Rp.350.000,-" : ""}
+                  </option>
                 </select>
               </div>
               <div>
@@ -317,7 +322,9 @@ export default function TroubleshootEditor() {
                     </button>
                     <button type="button" onClick={() => toggleSelect("issueType", "Non Sistem")} className="flex items-center gap-2">
                       <div className={`w-3.5 h-3.5 border border-slate-800 ${formData.issueType === "Non Sistem" ? "bg-black" : "bg-white"}`}></div>
-                      <span>Non Sistem = Rp.350.000,-</span>
+                      <span>
+                        Non Sistem {showPrice ? "= Rp.350.000,-" : ""}
+                      </span>
                     </button>
                   </div>
                 </div>
