@@ -12,7 +12,7 @@ export default function TroubleshootEditor() {
     jamSelesai: "",
     issueType: "",
     tujuanKunjungan: "",
-    partnerCompany: "", // Kosong di awal saat pertama kali dibuka
+    partnerCompany: "",
     tindakan: "",
     step: "",
     hasil: "",
@@ -39,7 +39,7 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  // Fungsi untuk mengirim Berita Acara ke API Mekari Sign dengan penanganan error dinamis
+  // Fungsi pengiriman ke Mekari Sign dengan penanganan error transparan
   const handleSendToMekariSign = async () => {
     try {
       setLoadingMekari(true);
@@ -58,15 +58,17 @@ export default function TroubleshootEditor() {
       });
 
       const data = await res.json();
+      console.log("Respon API Sign:", data);
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Gagal mengirim dokumen ke Mekari.");
+        alert("MEKARI_RES_ERROR: " + JSON.stringify(data.error || data));
+        return;
       }
 
       alert("Berhasil! Dokumen Berita Acara Troubleshoot telah dikirim ke Mekari Sign.");
     } catch (err: any) {
       console.error("Detail Error:", err);
-      alert("Gagal mengirim ke Mekari: " + (err.message || "Terjadi kesalahan"));
+      alert("CATCH_ERROR: " + (err?.message || JSON.stringify(err)));
     } finally {
       setLoadingMekari(false);
     }
@@ -94,7 +96,6 @@ export default function TroubleshootEditor() {
     { fullName: "PT Krijaya Tika Mandiri", code: "KRIJAYA" },
   ];
 
-  // Logika: Jika input kosong, otomatis fallback ke default ("CP" / Centrepark)
   const cleanPartnerName = formData.partnerCompany.replace(/\s*\([A-Za-z0-9_-]+\)$/, "").trim();
   const currentPartnerData = partnerList.find(
     p => p.fullName.toLowerCase() === cleanPartnerName.toLowerCase() || p.code.toLowerCase() === formData.partnerCompany.trim().toLowerCase()
