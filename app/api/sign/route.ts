@@ -5,10 +5,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    const apiUrl = process.env.MEKARI_API_URL;
+    // Hardcode sementara untuk memastikan bukan karena env Vercel
+    const apiUrl = "https://api-sandbox.mekari.com/v2";
     const clientId = process.env.MEKARI_CLIENT_ID;
     const clientSecret = process.env.MEKARI_CLIENT_SECRET;
-
+    
     // Log ke terminal / Vercel logs untuk memastikan env terbaca
     console.log("MEKARI_API_URL:", apiUrl ? "Terisi" : "KOSONG");
     console.log("MEKARI_CLIENT_ID:", clientId ? "Terisi" : "KOSONG");
