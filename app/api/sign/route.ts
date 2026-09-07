@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 
-function generateMekariHeaders(method: string, pathWithQueryParam: string) {
+function generateMekariHeaders(method: string, endpointPath: string) {
   const datetime = new Date().toUTCString();
-  const requestLine = `${method} ${pathWithQueryParam} HTTP/1.1`;
+  
+  // Format Request Line standar: METHOD PATH HTTP/1.1 (contoh: POST /v2/esign/v1/documents HTTP/1.1)
+  const requestLine = `${method} ${endpointPath} HTTP/1.1`;
+  
+  // Susunan payload HMAC sesuai dokumentasi resmi Mekari
   const payload = [`date: ${datetime}`, requestLine].join("\n");
   
   const clientSecret = process.env.MEKARI_CLIENT_SECRET || "";
@@ -13,12 +17,6 @@ function generateMekariHeaders(method: string, pathWithQueryParam: string) {
     .createHmac("SHA256", clientSecret)
     .update(payload)
     .digest("base64");
-
-  // Log untuk debugging di terminal/Vercel logs
-  console.log("--- DEBUG HMAC ---");
-  console.log("Request-Line:", requestLine);
-  console.log("Datetime:", datetime);
-  console.log("Signature Base64:", signature);
 
   return {
     "Accept": "application/json",
@@ -37,8 +35,6 @@ export async function POST(request: Request) {
     const path = "/v2/esign/v1/documents";
     const url = `${baseUrl}${path}`;
 
-    console.log("Mengirim request ke:", url);
-
     const requestBody = {
       document_name: documentName,
       signers: [
@@ -50,6 +46,7 @@ export async function POST(request: Request) {
       file: pdfBase64,
     };
 
+    // Panggil fungsi generator header dengan path yang bersih
     const headers = generateMekariHeaders("POST", path);
 
     const mekariResponse = await fetch(url, {
@@ -59,9 +56,6 @@ export async function POST(request: Request) {
     });
 
     const responseText = await mekariResponse.text();
-    console.log("Response status dari Mekari:", mekariResponse.status);
-    console.log("Response text dari Mekari:", responseText);
-
     let data;
     try {
       data = JSON.parse(responseText);
@@ -70,6 +64,7 @@ export async function POST(request: Request) {
     }
 
     if (!mekariResponse.ok) {
+      console.error("Respon Error dari Mekari:", data);
       return NextResponse.json(
         {
           success: false,
