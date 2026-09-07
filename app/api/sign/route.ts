@@ -29,14 +29,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    // Base URL dan Path Endpoint Mekari Sign (sesuaikan path API eSign/Sign yang valid)
-    const baseUrl = process.env.MEKARI_API_BASE_URL || "https://api.mekari.com";
-    const path = "/v2/signature/requests"; // atau path endpoint eSign Mekari yang sesuai
+    // Menggunakan domain sandbox resmi Mekari Sign: sandbox-api.mekari.com
+    const baseUrl = "https://sandbox-api.mekari.com";
+    const path = "/v2/esign/v1/documents"; // Path endpoint eSign dokumen
     const url = `${baseUrl}${path}`;
 
-    console.log("Mengirim request HMAC ke Mekari:", url);
+    console.log("Mengirim request ke Mekari eSign:", url);
 
-    // Payload yang dikirim ke Mekari
     const requestBody = {
       document_name: documentName,
       signers: [
@@ -48,7 +47,6 @@ export async function POST(request: Request) {
       file: pdfBase64,
     };
 
-    // Generate header dengan HMAC authentication
     const headers = generateMekariHeaders("POST", path);
 
     const mekariResponse = await fetch(url, {
