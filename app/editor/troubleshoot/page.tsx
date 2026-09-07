@@ -22,6 +22,8 @@ export default function TroubleshootEditor() {
     jabatanCp: "Car Park Manager",
   });
 
+  const [loadingMekari, setLoadingMekari] = useState(false);
+
   const listJabatan = ["PIC", "LEAD", "Area Manager", "Car Park Manager"];
 
   const handleChange = (
@@ -35,6 +37,39 @@ export default function TroubleshootEditor() {
       ...prev,
       [field]: prev[field] === value ? "" : value,
     }));
+  };
+
+  // Fungsi untuk mengirim Berita Acara ke API Mekari Sign kita
+  const handleSendToMekariSign = async () => {
+    try {
+      setLoadingMekari(true);
+
+      const payload = {
+        documentName: `BA Troubleshoot - ${formData.lokasi || "Parkee Lokasi"} (${formData.tanggal || "Draft"})`,
+        signerName: formData.picCp || "PIC Partner",
+        signerEmail: "partner.lokasi@email.com", // Bisa disesuaikan jika ingin menambah input email PIC
+        pdfBase64: "SAMPLE_BASE64_PDF_STRING", // Placeholder file, nanti bisa disesuaikan generator base64-nya
+      };
+
+      const res = await fetch("/api/sign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Berhasil! Dokumen Berita Acara Troubleshoot telah dikirim ke Mekari Sign.");
+      } else {
+        alert("Gagal mengirim ke Mekari: " + data.error);
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Terjadi kesalahan saat menghubungi server Mekari.");
+    } finally {
+      setLoadingMekari(false);
+    }
   };
 
   // Daftar lengkap perusahaan partner dengan inisial
@@ -149,12 +184,22 @@ export default function TroubleshootEditor() {
             </div>
           </div>
 
-          <button
-            onClick={() => window.print()}
-            className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs rounded-full shadow transition-all duration-200 flex items-center gap-2 active:scale-95"
-          >
-            🖨️ Cetak / Save PDF
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSendToMekariSign}
+              disabled={loadingMekari}
+              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full shadow transition-all duration-200 flex items-center gap-2 active:scale-95 disabled:opacity-50"
+            >
+              <span>✍️</span> {loadingMekari ? "Mengirim..." : "Kirim ke Mekari Sign"}
+            </button>
+
+            <button
+              onClick={() => window.print()}
+              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs rounded-full shadow transition-all duration-200 flex items-center gap-2 active:scale-95"
+            >
+              🖨️ Cetak / Save PDF
+            </button>
+          </div>
         </div>
       </header>
 
