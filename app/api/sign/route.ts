@@ -5,55 +5,54 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    // Endpoint Mekari Sign Sandbox
     const mekariApiUrl = "https://api-sandbox.mekari.com/v2/signature/requests";
-    const clientId = process.env.MEKARI_CLIENT_ID || "";
-    const clientSecret = process.env.MEKARI_CLIENT_SECRET || "";
+    const clientId = process.env.MEKARI_CLIENT_ID;
+    const clientSecret = process.env.MEKARI_CLIENT_SECRET;
 
-    console.log("Mengirim request ke Mekari Sign:", mekariApiUrl);
+    // Cek apakah kredensial terbaca di server Vercel
+    console.log("CLIENT_ID Terbaca:", clientId ? "ADA (aman)" : "KOSONG!");
+    console.log("CLIENT_SECRET Terbaca:", clientSecret ? "ADA (aman)" : "KOSONG!");
 
     const mekariResponse = await fetch(mekariApiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Client-Id": clientId,
-        "X-Client-Secret": clientSecret,
+        "X-Client-Id": clientId || "",
+        "X-Client-Secret": clientSecret || "",
       },
       body: JSON.stringify({
         document_name: documentName,
-        signers: [
-          {
-            name: signerName,
-            email: signerEmail,
-          },
-        ],
+        signers: [{ name: signerName, email: signerEmail }],
         file: pdfBase64,
       }),
     });
 
-    const data = await mekariResponse.json();
+    const responseText = await mekariResponse.text();
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      data = { rawText: responseText };
+    }
 
     if (!mekariResponse.ok) {
-      console.error("Respon Error dari Mekari:", data);
       return NextResponse.json(
         {
           success: false,
-          error: data.message || data.error || JSON.stringify(data),
+          error: `Mekari HTTP ${mekariResponse.status}: ${JSON.stringify(data)}`,
         },
         { status: mekariResponse.status }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data,
-    });
+    return NextResponse.json({ success: true, data });
   } catch (err: any) {
-    console.error("Internal Server Error:", err);
+    // Tangkap error mentah fetch failed beserta penyebab aslinya
+    console.error("Fetch Error Detail:", err);
     return NextResponse.json(
       {
         success: false,
-        error: err.message || "Terjadi kesalahan internal server",
+        error: "Fetch Gagal Total: " + (err.cause?.message || err.message),
       },
       { status: 500 }
     );
