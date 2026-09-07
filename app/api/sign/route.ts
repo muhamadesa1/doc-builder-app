@@ -9,15 +9,22 @@ export async function POST(request: Request) {
     const clientId = process.env.MEKARI_CLIENT_ID;
     const clientSecret = process.env.MEKARI_CLIENT_SECRET;
 
-    if (!clientId || !clientSecret) {
+    // Log ke terminal / Vercel logs untuk memastikan env terbaca
+    console.log("MEKARI_API_URL:", apiUrl ? "Terisi" : "KOSONG");
+    console.log("MEKARI_CLIENT_ID:", clientId ? "Terisi" : "KOSONG");
+
+    if (!apiUrl || !clientId || !clientSecret) {
       return NextResponse.json(
-        { error: "Kredensial Mekari API belum diset di .env.local" },
+        { error: "Kredensial atau URL Mekari API belum lengkap di environment variables." },
         { status: 500 }
       );
     }
 
+    const targetUrl = `${apiUrl}/signature/requests`;
+    console.log("Menembak endpoint:", targetUrl);
+
     // Tembak API Mekari Sign
-    const response = await fetch(`${apiUrl}/signature/requests`, {
+    const response = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,13 +46,18 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
+    console.log("Respon dari Mekari:", response.status, data);
 
     if (!response.ok) {
-      throw new Error(data.message || "Gagal membuat request tanda tangan di Mekari.");
+      throw new Error(data.message || JSON.stringify(data) || "Gagal membuat request tanda tangan di Mekari.");
     }
 
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("FULL ERROR LOG MEKARI:", error);
+    return NextResponse.json({ 
+      success: false, 
+      error: error.cause?.message || error.message || "Terjadi kesalahan pada fetch API" 
+    }, { status: 500 });
   }
 }
