@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 
-// Fungsi untuk membuat header HMAC sesuai standar Mekari
 function generateMekariHeaders(method: string, pathWithQueryParam: string) {
   const datetime = new Date().toUTCString();
   const requestLine = `${method} ${pathWithQueryParam} HTTP/1.1`;
@@ -10,11 +9,16 @@ function generateMekariHeaders(method: string, pathWithQueryParam: string) {
   const clientSecret = process.env.MEKARI_CLIENT_SECRET || "";
   const clientId = process.env.MEKARI_CLIENT_ID || "";
 
-  // Membuat HMAC-SHA256 signature
   const signature = crypto
     .createHmac("SHA256", clientSecret)
     .update(payload)
     .digest("base64");
+
+  // Log untuk debugging di terminal/Vercel logs
+  console.log("--- DEBUG HMAC ---");
+  console.log("Request-Line:", requestLine);
+  console.log("Datetime:", datetime);
+  console.log("Signature Base64:", signature);
 
   return {
     "Accept": "application/json",
@@ -29,12 +33,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    // Menggunakan domain sandbox resmi Mekari Sign: sandbox-api.mekari.com
     const baseUrl = "https://sandbox-api.mekari.com";
-    const path = "/v2/esign/v1/documents"; // Path endpoint eSign dokumen
+    const path = "/v2/esign/v1/documents";
     const url = `${baseUrl}${path}`;
 
-    console.log("Mengirim request ke Mekari eSign:", url);
+    console.log("Mengirim request ke:", url);
 
     const requestBody = {
       document_name: documentName,
@@ -56,6 +59,9 @@ export async function POST(request: Request) {
     });
 
     const responseText = await mekariResponse.text();
+    console.log("Response status dari Mekari:", mekariResponse.status);
+    console.log("Response text dari Mekari:", responseText);
+
     let data;
     try {
       data = JSON.parse(responseText);
@@ -64,7 +70,6 @@ export async function POST(request: Request) {
     }
 
     if (!mekariResponse.ok) {
-      console.error("Respon Error dari Mekari:", data);
       return NextResponse.json(
         {
           success: false,
