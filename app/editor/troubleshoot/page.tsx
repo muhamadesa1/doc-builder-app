@@ -39,7 +39,7 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  // Fungsi untuk mengirim Berita Acara ke API Mekari Sign kita
+  // Fungsi untuk mengirim Berita Acara ke API Mekari Sign dengan penanganan error dinamis
   const handleSendToMekariSign = async () => {
     try {
       setLoadingMekari(true);
@@ -47,8 +47,8 @@ export default function TroubleshootEditor() {
       const payload = {
         documentName: `BA Troubleshoot - ${formData.lokasi || "Parkee Lokasi"} (${formData.tanggal || "Draft"})`,
         signerName: formData.picCp || "PIC Partner",
-        signerEmail: "partner.lokasi@email.com", // Bisa disesuaikan jika ingin menambah input email PIC
-        pdfBase64: "SAMPLE_BASE64_PDF_STRING", // Placeholder file, nanti bisa disesuaikan generator base64-nya
+        signerEmail: "partner.lokasi@email.com",
+        pdfBase64: "SAMPLE_BASE64_PDF_STRING",
       };
 
       const res = await fetch("/api/sign", {
@@ -59,14 +59,14 @@ export default function TroubleshootEditor() {
 
       const data = await res.json();
 
-      if (data.success) {
-        alert("Berhasil! Dokumen Berita Acara Troubleshoot telah dikirim ke Mekari Sign.");
-      } else {
-        alert("Gagal mengirim ke Mekari: " + data.error);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Gagal mengirim dokumen ke Mekari.");
       }
+
+      alert("Berhasil! Dokumen Berita Acara Troubleshoot telah dikirim ke Mekari Sign.");
     } catch (err: any) {
-      console.error(err);
-      alert("Terjadi kesalahan saat menghubungi server Mekari.");
+      console.error("Detail Error:", err);
+      alert("Gagal mengirim ke Mekari: " + (err.message || "Terjadi kesalahan"));
     } finally {
       setLoadingMekari(false);
     }
@@ -98,7 +98,7 @@ export default function TroubleshootEditor() {
   const cleanPartnerName = formData.partnerCompany.replace(/\s*\([A-Za-z0-9_-]+\)$/, "").trim();
   const currentPartnerData = partnerList.find(
     p => p.fullName.toLowerCase() === cleanPartnerName.toLowerCase() || p.code.toLowerCase() === formData.partnerCompany.trim().toLowerCase()
-  ) || partnerList[0]; // Fallback ke partner pertama (CP) jika kosong
+  ) || partnerList[0]; 
   
   const currentPartner = { fullName: currentPartnerData.fullName, code: currentPartnerData.code };
   const showPrice = currentPartner.code === "CP" || currentPartner.code === "IPM";
@@ -223,7 +223,7 @@ export default function TroubleshootEditor() {
           </div>
 
           <div className="space-y-5 text-sm">
-            {/* Section 1: Partner dengan Search Inisial / Nama (Kosong di awal, default CP) */}
+            {/* Section 1: Partner */}
             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl space-y-2">
               <label className="block font-bold text-indigo-900 dark:text-indigo-300 text-xs uppercase tracking-wider">
                 Perusahaan Partner / Mitra (Ketik inisial cth: CP, RGA)
