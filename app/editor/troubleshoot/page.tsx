@@ -39,7 +39,7 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  // Fungsi pengiriman ke Mekari Sign dengan konversi PDF aman dari error "lab" color
+  // Fungsi pengiriman ke Mekari Sign dengan optimasi kompresi PDF agar tidak kebesaran payload-nya
   const handleSendToMekariSign = async () => {
     try {
       setLoadingMekari(true);
@@ -59,13 +59,12 @@ export default function TroubleshootEditor() {
         throw new Error("Elemen dokumen cetak tidak ditemukan!");
       }
 
-      // 2. Render elemen dokumen ke canvas dengan onclone pembersih stylesheet global
+      // 2. Render canvas dengan skala optimal & pembersih stylesheet global
       const canvas = await html2canvas(inputElement, {
-        scale: 2,
+        scale: 0.9,
         useCORS: true,
         logging: false,
         onclone: (clonedDoc) => {
-          // Buang stylesheet global yang membawa fungsi warna modern "lab"
           const stylesheets = clonedDoc.querySelectorAll("link[rel='stylesheet'], style");
           stylesheets.forEach((sheet) => sheet.remove());
 
@@ -78,14 +77,15 @@ export default function TroubleshootEditor() {
         },
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      // Kompres ke JPEG kualitas 75% agar file Base64 kecil dan tidak kena limit Vercel
+      const imgData = canvas.toDataURL("image/jpeg", 0.75);
 
       // 3. Buat instance PDF ukuran A4
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
 
       // 4. Ambil hasil PDF dalam format Base64
       const pdfBase64Full = pdf.output("datauristring");
@@ -104,7 +104,14 @@ export default function TroubleshootEditor() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = { error: responseText };
+      }
+
       console.log("Respon API Sign:", data);
 
       if (!res.ok || !data.success) {
