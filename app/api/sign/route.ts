@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 
 export async function POST(request: Request) {
   try {
@@ -14,80 +15,62 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
-    const baseUrl = "https://api.mekari.com";
 
-    console.log("1. Meminta OAuth2 Access Token ke Mekari...");
+    // Gunakan endpoint eSign v2 resmi Mekari untuk HMAC
+    const path = "/v2/esign/documents";
+    const url = `https://api.mekari.com${path}`;
+    const datetime = new Date().toUTCString();
 
-    // 1. Ambil Access Token dari Mekari OAuth endpoint
-    const tokenRes = await fetch(`${baseUrl}/oauth/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      },
-      body: JSON.stringify({
-        grant_type: "client_credentials",
-        client_id: clientId,
-        client_secret: clientSecret,
-      }),
-    });
-
-    const tokenText = await tokenRes.text();
-    let tokenData;
-    try {
-      tokenData = JSON.parse(tokenText);
-    } catch {
-      tokenData = { rawText: tokenText };
-    }
-
-    if (!tokenRes.ok || !tokenData.access_token) {
-      console.error("Gagal ambil token OAuth2:", tokenData);
-      return NextResponse.json({
-        success: false,
-        error: `OAuth2 Token Gagal [${tokenRes.status}]: ${JSON.stringify(tokenData)}`,
-      }, { status: tokenRes.status });
-    }
-
-    const accessToken = tokenData.access_token;
-    console.log("Token OAuth2 berhasil didapat! Mengirim dokumen ke eSign...");
-
-    // 2. Kirim dokumen ke endpoint eSign yang benar menggunakan Bearer Token
-    const esignPath = "/esign/v1/documents";
-    const esignUrl = `${baseUrl}${esignPath}`;
+    const requestLine = `POST ${path} HTTP/1.1`;
+    const payload = [`date: ${datetime}`, requestLine].join("\n");
     
-    const esignRes = await fetch(esignUrl, {
+    const signature = crypto
+      .createHmac("SHA256", clientSecret)
+      .update(payload)
+      .digest("base64");
+
+    const headers = {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Date": datetime,
+      "Authorization": `hmac username="${clientId}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`,
+    };
+
+    const payloadObj = {
+      document_name: documentName,
+      signers: [{ name: signerName, email: signerEmail }],
+      file: pdfBase64,
+    };
+
+    const requestBodyString = JSON.stringify(payloadObj);
+
+    console.log("MENEMBAK HMAC ESIGN MEKARI:", url);
+
+    const mekariResponse = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": `Bearer ${accessToken}`, // Menggunakan Access Token murni
-      },
-      body: JSON.stringify({
-        document_name: documentName,
-        signers: [{ name: signerName, email: signerEmail }],
-        file: pdfBase64,
-      }),
+      headers: headers,
+      body: requestBodyString,
     });
 
-    const esignText = await esignRes.text();
-    console.log("eSign Response Status:", esignRes.status);
-    console.log("eSign Response Body:", esignText);
+    const responseText = await mekariResponse.text();
+    console.log("Mekari Response Status:", mekariResponse.status);
+    console.log("Mekari Response Body:", responseText);
 
-    let esignData;
+    let data;
     try {
-      esignData = JSON.parse(esignText);
+      data = JSON.parse(responseText);
     } catch {
-      esignData = { rawText: esignText };
+      data = { rawText: responseText };
     }
 
-    if (!esignRes.ok) {
+    if (!mekariResponse.ok) {
       return NextResponse.json({
         success: false,
-        error: `Mekari eSign Error [${esignRes.status}]: ${JSON.stringify(esignData)}`,
-      }, { status: esignRes.status });
+        error: `Mekari HTTP ${mekariResponse.status}: ${JSON.stringify(data)}`,
+      }, { status: mekariResponse.status });
     }
 
-    return NextResponse.json({ success: true, data: esignData });
+    return NextResponse.json({ success: true, data });
 
   } catch (err: any) {
     console.error("Internal Server Error:", err);
