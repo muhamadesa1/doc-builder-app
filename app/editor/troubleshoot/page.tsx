@@ -39,16 +39,51 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  // Fungsi pengiriman ke Mekari Sign dengan penanganan error transparan
+  // Fungsi pengiriman ke Mekari Sign dengan konversi PDF nyata ke Base64
   const handleSendToMekariSign = async () => {
     try {
       setLoadingMekari(true);
 
+      if (!formData.picCp) {
+        alert("Mohon isi Nama Terang Partner / Manager terlebih dahulu!");
+        setLoadingMekari(false);
+        return;
+      }
+
+      // Load dynamic html2canvas & jspdf untuk mengubah dokumen HTML menjadi PDF Base64
+      const html2canvas = (await import("html2canvas")).default;
+      const { jsPDF } = await import("jspdf");
+
+      const inputElement = document.getElementById("print-document");
+      if (!inputElement) {
+        throw new Error("Elemen dokumen cetak tidak ditemukan!");
+      }
+
+      // Render elemen dokumen ke canvas
+      const canvas = await html2canvas(inputElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      // Buat instance PDF ukuran A4
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+      // Ambil hasil PDF dalam format Base64 (tanpa prefix datauristring)
+      const pdfBase64Full = pdf.output("datauristring");
+      const pdfBase64 = pdfBase64Full.split(",")[1];
+
       const payload = {
         documentName: `BA Troubleshoot - ${formData.lokasi || "Parkee Lokasi"} (${formData.tanggal || "Draft"})`,
-        signerName: formData.picCp || "PIC Partner",
+        signerName: formData.picCp,
         signerEmail: "partner.lokasi@email.com",
-        pdfBase64: "SAMPLE_BASE64_PDF_STRING",
+        pdfBase64: pdfBase64,
       };
 
       const res = await fetch("/api/sign", {
@@ -65,7 +100,7 @@ export default function TroubleshootEditor() {
         return;
       }
 
-      alert("Berhasil! Dokumen Berita Acara Troubleshoot telah dikirim ke Mekari Sign.");
+      alert("Berhasil! Dokumen Berita Acara Troubleshoot asli telah dikirim ke Mekari Sign.");
     } catch (err: any) {
       console.error("Detail Error:", err);
       alert("CATCH_ERROR: " + (err?.message || JSON.stringify(err)));
