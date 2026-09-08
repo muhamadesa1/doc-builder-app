@@ -9,14 +9,14 @@ export async function POST(request: Request) {
     if (!clientId || !clientSecret) {
       return NextResponse.json({
         success: false,
-        error: "Environment Variable MEKARI_CLIENT_ID atau SECRET kosong di server Vercel!",
+        error: "Environment Variable MEKARI_CLIENT_ID atau SECRET kosong di Vercel!",
       }, { status: 400 });
     }
 
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    // Gunakan base URL umum Mekari API
+    // BASE URL UTAMA RESMI MEKARI API
     const baseUrl = "https://api.mekari.com";
     const path = "/v2/esign/v1/documents";
     const url = `${baseUrl}${path}`;
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
-    console.log("Menghubungi API Mekari:", url);
+    console.log("Menghubungi endpoint resmi Mekari:", url);
 
     const mekariResponse = await fetch(url, {
       method: "POST",
