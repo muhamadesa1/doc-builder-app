@@ -18,25 +18,7 @@ export async function POST(request: Request) {
 
     const path = "/v2/esign/documents";
     const url = `https://api.mekari.com${path}`;
-    
-    // Gunakan tanggal UTC standar seperti yang divalidasi sistem Mekari
     const datetime = new Date().toUTCString();
-
-    // Sesuai contoh validator Mekari: format request-line menggunakan POST
-    const requestLine = `POST ${path} HTTP/1.1`;
-    const payload = [`date: ${datetime}`, requestLine].join("\n");
-    
-    const signature = crypto
-      .createHmac("SHA256", clientSecret)
-      .update(payload)
-      .digest("base64");
-
-    const headers = {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-      "Date": datetime,
-      "Authorization": `hmac username="${clientId}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`,
-    };
 
     const payloadObj = {
       document_name: documentName,
@@ -46,7 +28,32 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
-    console.log("MENEMBAK MEKARI DENGAN HMAC VALIDATOR FORMAT:", url);
+    // 1. BUAT HEADER DIGEST (Wajib untuk POST di Mekari HMAC Auth)
+    const bodyHash = crypto
+      .createHash("sha256")
+      .update(requestBodyString)
+      .digest("base64");
+    const digestHeaderValue = `SHA-256=${bodyHash}`;
+
+    // 2. BUAT HMAC SIGNATURE
+    const requestLine = `POST ${path} HTTP/1.1`;
+    const payloadSigning = [`date: ${datetime}`, requestLine].join("\n");
+    
+    const signature = crypto
+      .createHmac("SHA256", clientSecret)
+      .update(payloadSigning)
+      .digest("base64");
+
+    // 3. SUSUN HEADER LENGKAP SESUAI DOKUMENTASI MEKARI
+    const headers = {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Date": datetime,
+      "Digest": digestHeaderValue,
+      "Authorization": `hmac username="${clientId}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`,
+    };
+
+    console.log("MENEMBAK MEKARI DENGAN HEADER DIGEST LENGKAP:", url);
 
     const mekariResponse = await fetch(url, {
       method: "POST",
