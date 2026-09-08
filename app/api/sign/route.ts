@@ -16,8 +16,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    // KEMBALIKAN KE DOMAIN UTAMA & PATH ESIGN V2 YANG BENAR
-    const path = "/v2/esign/v1/documents";
+    // Coba sesuaikan path eSign gateway Mekari yang bersih
+    const path = "/esign/v1/documents";
     const url = `https://api.mekari.com${path}`;
     const datetime = new Date().toUTCString();
 
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
-    console.log("MENEMBAK ENDPOINT RESMI MEKARI:", url);
+    console.log("MENEMBAK ENDPOINT ESIGN MEKARI:", url);
 
     const mekariResponse = await fetch(url, {
       method: "POST",
