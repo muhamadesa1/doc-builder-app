@@ -39,7 +39,7 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  // Fungsi pengiriman ke Mekari Sign dengan konversi PDF nyata ke Base64
+  // Fungsi pengiriman ke Mekari Sign dengan penanganan anti error "lab" color html2canvas
   const handleSendToMekariSign = async () => {
     try {
       setLoadingMekari(true);
@@ -50,7 +50,7 @@ export default function TroubleshootEditor() {
         return;
       }
 
-      // Load dynamic html2canvas & jspdf untuk mengubah dokumen HTML menjadi PDF Base64
+      // Load dynamic html2canvas & jspdf
       const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
 
@@ -59,11 +59,18 @@ export default function TroubleshootEditor() {
         throw new Error("Elemen dokumen cetak tidak ditemukan!");
       }
 
-      // Render elemen dokumen ke canvas
+      // Render elemen dokumen ke canvas dengan onclone untuk override warna modern
       const canvas = await html2canvas(inputElement, {
         scale: 2,
         useCORS: true,
         logging: false,
+        onclone: (clonedDoc) => {
+          const target = clonedDoc.getElementById("print-document");
+          if (target) {
+            target.style.color = "#000000";
+            target.style.backgroundColor = "#FFFFFF";
+          }
+        },
       });
 
       const imgData = canvas.toDataURL("image/png");
@@ -75,7 +82,7 @@ export default function TroubleshootEditor() {
 
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
 
-      // Ambil hasil PDF dalam format Base64 (tanpa prefix datauristring)
+      // Ambil hasil PDF dalam format Base64
       const pdfBase64Full = pdf.output("datauristring");
       const pdfBase64 = pdfBase64Full.split(",")[1];
 
