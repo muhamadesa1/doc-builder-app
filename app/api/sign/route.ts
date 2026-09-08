@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    // BASE URL SANDBOX MEKARI YANG BENAR:
+    // Endpoint resmi Mekari eSign Document
     const baseUrl = "https://api-sandbox.mekari.com";
     const path = "/v2/esign/v1/documents";
     const url = `${baseUrl}${path}`;
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
-    console.log("Menghubungi endpoint resmi Mekari:", url);
+    console.log("Menembak endpoint eSign Mekari:", url);
 
     const mekariResponse = await fetch(url, {
       method: "POST",
