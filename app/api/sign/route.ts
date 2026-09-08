@@ -4,14 +4,11 @@ import crypto from "crypto";
 function generateMekariHmacHeaders(method: string, endpointPath: string, requestBodyString: string) {
   const datetime = new Date().toUTCString();
   
-  // 1. Buat SHA-256 Digest dari body request
   const bodyHash = crypto.createHash("sha256").update(requestBodyString).digest("base64");
   const digestHeader = `SHA-256=${bodyHash}`;
 
-  // 2. Format Request Line
   const requestLine = `${method} ${endpointPath} HTTP/1.1`;
   
-  // 3. Susunan payload HMAC Wajib menyertakan date, digest, dan request-line sesuai standar Mekari POST
   const payload = [
     `date: ${datetime}`,
     `digest: ${digestHeader}`,
@@ -21,7 +18,6 @@ function generateMekariHmacHeaders(method: string, endpointPath: string, request
   const clientSecret = process.env.MEKARI_CLIENT_SECRET || "";
   const clientId = process.env.MEKARI_CLIENT_ID || "";
 
-  // 4. Generate Signature
   const signature = crypto
     .createHmac("SHA256", clientSecret)
     .update(payload)
@@ -57,11 +53,9 @@ export async function POST(request: Request) {
     };
 
     const requestBodyString = JSON.stringify(payloadObj);
-
-    // Generate header lengkap dengan Digest & HMAC Signature yang sudah disesuaikan
     const headers = generateMekariHmacHeaders("POST", path, requestBodyString);
 
-    console.log("Mengirim HMAC request dengan Digest & Signature yang benar ke Mekari eSign...");
+    console.log("Client ID yang digunakan:", process.env.MEKARI_CLIENT_ID ? "Terbaca (Panjang: " + process.env.MEKARI_CLIENT_ID.length + ")" : "KOSONG!");
 
     const mekariResponse = await fetch(url, {
       method: "POST",
@@ -70,22 +64,23 @@ export async function POST(request: Request) {
     });
 
     const responseText = await mekariResponse.text();
+    console.log("Raw Response dari Mekari:", responseText);
+
+    if (!mekariResponse.ok) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Mekari [${mekariResponse.status}]: ${responseText}`,
+        },
+        { status: mekariResponse.status }
+      );
+    }
+
     let data;
     try {
       data = JSON.parse(responseText);
     } catch {
       data = { rawText: responseText };
-    }
-
-    if (!mekariResponse.ok) {
-      console.error("Respon Error Mekari:", data);
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Mekari HTTP ${mekariResponse.status}: ${JSON.stringify(data)}`,
-        },
-        { status: mekariResponse.status }
-      );
     }
 
     return NextResponse.json({
