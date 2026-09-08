@@ -4,15 +4,19 @@ import crypto from "crypto";
 function generateMekariHmacHeaders(method: string, endpointPath: string, requestBodyString: string) {
   const datetime = new Date().toUTCString();
   
-  // 1. Buat SHA-256 Digest dari body request (wajib untuk POST/PUT di Mekari HMAC)
+  // 1. Buat SHA-256 Digest dari body request
   const bodyHash = crypto.createHash("sha256").update(requestBodyString).digest("base64");
   const digestHeader = `SHA-256=${bodyHash}`;
 
   // 2. Format Request Line
   const requestLine = `${method} ${endpointPath} HTTP/1.1`;
   
-  // 3. Susunan payload HMAC (biasanya menyertakan date dan request-line)
-  const payload = [`date: ${datetime}`, requestLine].join("\n");
+  // 3. Susunan payload HMAC Wajib menyertakan date, digest, dan request-line sesuai standar Mekari POST
+  const payload = [
+    `date: ${datetime}`,
+    `digest: ${digestHeader}`,
+    requestLine
+  ].join("\n");
   
   const clientSecret = process.env.MEKARI_CLIENT_SECRET || "";
   const clientId = process.env.MEKARI_CLIENT_ID || "";
@@ -28,7 +32,7 @@ function generateMekariHmacHeaders(method: string, endpointPath: string, request
     "Content-Type": "application/json",
     "Date": datetime,
     "Digest": digestHeader,
-    "Authorization": `hmac username="${clientId}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`,
+    "Authorization": `hmac username="${clientId}", algorithm="hmac-sha256", headers="date digest request-line", signature="${signature}"`,
   };
 }
 
@@ -54,10 +58,10 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
-    // Generate header lengkap dengan Digest & HMAC Signature
+    // Generate header lengkap dengan Digest & HMAC Signature yang sudah disesuaikan
     const headers = generateMekariHmacHeaders("POST", path, requestBodyString);
 
-    console.log("Mengirim HMAC request dengan Digest ke Mekari eSign...");
+    console.log("Mengirim HMAC request dengan Digest & Signature yang benar ke Mekari eSign...");
 
     const mekariResponse = await fetch(url, {
       method: "POST",
