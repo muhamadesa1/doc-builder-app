@@ -16,10 +16,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    // BASE URL UTAMA RESMI MEKARI API
-    const baseUrl = "https://api.mekari.com";
+    // Hardcode langsung domain utama tanpa variabel agar tidak nyangkut cache
     const path = "/v2/esign/v1/documents";
-    const url = `${baseUrl}${path}`;
+    const url = `https://api.mekari.com${path}`;
     const datetime = new Date().toUTCString();
 
     const requestLine = `POST ${path} HTTP/1.1`;
@@ -45,7 +44,7 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
-    console.log("Menghubungi endpoint resmi Mekari:", url);
+    console.log("MEMBUAT KONEKSI KE MEKARI API:", url);
 
     const mekariResponse = await fetch(url, {
       method: "POST",
