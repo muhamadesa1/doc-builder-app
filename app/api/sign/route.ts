@@ -6,8 +6,6 @@ export async function POST(request: Request) {
     const clientId = process.env.MEKARI_CLIENT_ID || "";
     const clientSecret = process.env.MEKARI_CLIENT_SECRET || "";
 
-    console.log("CHECK ENV VERCEL -> ID Length:", clientId.length, "| Secret Length:", clientSecret.length);
-
     if (!clientId || !clientSecret) {
       return NextResponse.json({
         success: false,
@@ -18,7 +16,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { documentName, signerEmail, signerName, pdfBase64 } = body;
 
-    const baseUrl = "https://sandbox-api.mekari.com";
+    // BASE URL SANDBOX MEKARI YANG BENAR:
+    const baseUrl = "https://api-sandbox.mekari.com";
     const path = "/v2/esign/v1/documents";
     const url = `${baseUrl}${path}`;
     const datetime = new Date().toUTCString();
@@ -46,6 +45,8 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
+    console.log("Menghubungi endpoint resmi Mekari:", url);
+
     const mekariResponse = await fetch(url, {
       method: "POST",
       headers: headers,
@@ -56,14 +57,20 @@ export async function POST(request: Request) {
     console.log("Mekari Response Status:", mekariResponse.status);
     console.log("Mekari Response Body:", responseText);
 
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      data = { rawText: responseText };
+    }
+
     if (!mekariResponse.ok) {
       return NextResponse.json({
         success: false,
-        error: `Mekari HTTP ${mekariResponse.status}: ${responseText}`,
+        error: `Mekari HTTP ${mekariResponse.status}: ${JSON.stringify(data)}`,
       }, { status: mekariResponse.status });
     }
 
-    const data = JSON.parse(responseText);
     return NextResponse.json({ success: true, data });
 
   } catch (err: any) {
