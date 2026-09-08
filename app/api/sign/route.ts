@@ -18,9 +18,11 @@ export async function POST(request: Request) {
 
     const path = "/v2/esign/documents";
     const url = `https://api.mekari.com${path}`;
+    
+    // Gunakan tanggal UTC standar seperti yang divalidasi sistem Mekari
     const datetime = new Date().toUTCString();
 
-    // String to sign standar HMAC Mekari
+    // Sesuai contoh validator Mekari: format request-line menggunakan POST
     const requestLine = `POST ${path} HTTP/1.1`;
     const payload = [`date: ${datetime}`, requestLine].join("\n");
     
@@ -44,7 +46,7 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
-    console.log("MENEMBAK ENDPOINT HMAC ESIGN:", url);
+    console.log("MENEMBAK MEKARI DENGAN HMAC VALIDATOR FORMAT:", url);
 
     const mekariResponse = await fetch(url, {
       method: "POST",
