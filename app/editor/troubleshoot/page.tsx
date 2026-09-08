@@ -39,7 +39,7 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  // Fungsi pengiriman ke Mekari Sign dengan penanganan anti error "lab" color html2canvas
+  // Fungsi pengiriman ke Mekari Sign dengan konversi PDF aman dari error "lab" color
   const handleSendToMekariSign = async () => {
     try {
       setLoadingMekari(true);
@@ -50,7 +50,7 @@ export default function TroubleshootEditor() {
         return;
       }
 
-      // Load dynamic html2canvas & jspdf
+      // 1. Load dynamic html2canvas & jspdf
       const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
 
@@ -59,30 +59,35 @@ export default function TroubleshootEditor() {
         throw new Error("Elemen dokumen cetak tidak ditemukan!");
       }
 
-      // Render elemen dokumen ke canvas dengan onclone untuk override warna modern
+      // 2. Render elemen dokumen ke canvas dengan onclone pembersih stylesheet global
       const canvas = await html2canvas(inputElement, {
         scale: 2,
         useCORS: true,
         logging: false,
         onclone: (clonedDoc) => {
+          // Buang stylesheet global yang membawa fungsi warna modern "lab"
+          const stylesheets = clonedDoc.querySelectorAll("link[rel='stylesheet'], style");
+          stylesheets.forEach((sheet) => sheet.remove());
+
           const target = clonedDoc.getElementById("print-document");
           if (target) {
             target.style.color = "#000000";
             target.style.backgroundColor = "#FFFFFF";
+            target.style.fontFamily = "sans-serif";
           }
         },
       });
 
       const imgData = canvas.toDataURL("image/png");
 
-      // Buat instance PDF ukuran A4
+      // 3. Buat instance PDF ukuran A4
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
 
-      // Ambil hasil PDF dalam format Base64
+      // 4. Ambil hasil PDF dalam format Base64
       const pdfBase64Full = pdf.output("datauristring");
       const pdfBase64 = pdfBase64Full.split(",")[1];
 
