@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const url = `https://api.mekari.com${path}`;
     const datetime = new Date().toUTCString();
 
-    // Format string to sign standar HMAC Mekari (date dan request-line)
+    // String to sign standar HMAC Mekari
     const requestLine = `POST ${path} HTTP/1.1`;
     const payload = [`date: ${datetime}`, requestLine].join("\n");
     
@@ -29,7 +29,6 @@ export async function POST(request: Request) {
       .update(payload)
       .digest("base64");
 
-    // Header otentikasi HMAC lengkap sesuai spesifikasi Mekari Gateway
     const headers = {
       "Accept": "application/json",
       "Content-Type": "application/json",
@@ -45,7 +44,7 @@ export async function POST(request: Request) {
 
     const requestBodyString = JSON.stringify(payloadObj);
 
-    console.log("MENEMBAK HMAC ESIGN MEKARI DENGAN FORMAT LENGKAP:", url);
+    console.log("MENEMBAK ENDPOINT HMAC ESIGN:", url);
 
     const mekariResponse = await fetch(url, {
       method: "POST",
