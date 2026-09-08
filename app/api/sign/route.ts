@@ -1,23 +1,22 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 
-function generateMekariHmacHeaders(method: string, endpointPath: string, requestBodyString: string) {
+function generateMekariHmacHeaders(method: string, endpointPath: string) {
   const datetime = new Date().toUTCString();
-  
-  const bodyHash = crypto.createHash("sha256").update(requestBodyString).digest("base64");
-  const digestHeader = `SHA-256=${bodyHash}`;
 
+  // 1. Format Request Line
   const requestLine = `${method} ${endpointPath} HTTP/1.1`;
   
+  // 2. Susunan payload HMAC standar Mekari tanpa Digest untuk endpoint file upload/large body
   const payload = [
     `date: ${datetime}`,
-    `digest: ${digestHeader}`,
     requestLine
   ].join("\n");
   
   const clientSecret = process.env.MEKARI_CLIENT_SECRET || "";
   const clientId = process.env.MEKARI_CLIENT_ID || "";
 
+  // 3. Generate Signature
   const signature = crypto
     .createHmac("SHA256", clientSecret)
     .update(payload)
@@ -27,8 +26,7 @@ function generateMekariHmacHeaders(method: string, endpointPath: string, request
     "Accept": "application/json",
     "Content-Type": "application/json",
     "Date": datetime,
-    "Digest": digestHeader,
-    "Authorization": `hmac username="${clientId}", algorithm="hmac-sha256", headers="date digest request-line", signature="${signature}"`,
+    "Authorization": `hmac username="${clientId}", algorithm="hmac-sha256", headers="date request-line", signature="${signature}"`,
   };
 }
 
@@ -53,9 +51,11 @@ export async function POST(request: Request) {
     };
 
     const requestBodyString = JSON.stringify(payloadObj);
-    const headers = generateMekariHmacHeaders("POST", path, requestBodyString);
 
-    console.log("Client ID yang digunakan:", process.env.MEKARI_CLIENT_ID ? "Terbaca (Panjang: " + process.env.MEKARI_CLIENT_ID.length + ")" : "KOSONG!");
+    // Generate header HMAC murni tanpa Digest header
+    const headers = generateMekariHmacHeaders("POST", path);
+
+    console.log("Mengirim HMAC request (tanpa Digest) ke Mekari eSign...");
 
     const mekariResponse = await fetch(url, {
       method: "POST",
@@ -64,23 +64,22 @@ export async function POST(request: Request) {
     });
 
     const responseText = await mekariResponse.text();
-    console.log("Raw Response dari Mekari:", responseText);
-
-    if (!mekariResponse.ok) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Mekari [${mekariResponse.status}]: ${responseText}`,
-        },
-        { status: mekariResponse.status }
-      );
-    }
-
     let data;
     try {
       data = JSON.parse(responseText);
     } catch {
       data = { rawText: responseText };
+    }
+
+    if (!mekariResponse.ok) {
+      console.error("Respon Error Mekari:", data);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Mekari HTTP ${mekariResponse.status}: ${JSON.stringify(data)}`,
+        },
+        { status: mekariResponse.status }
+      );
     }
 
     return NextResponse.json({
