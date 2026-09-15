@@ -75,36 +75,52 @@ export default function TroubleshootEditor() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 0mm;
-          }
-
-          /* Sembunyikan semua elemen di luar dokumen cetak */
-          body * {
-            visibility: hidden;
-          }
-
-          #print-document, #print-document * {
-            visibility: visible;
-          }
-
-          /* Matikan total border dan bayangan agar garis samping kanan musnah */
-          #print-document {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 10mm 12mm !important;
-            box-shadow: none !important;
-            border: none !important;
-            outline: none !important;
-            background: white !important;
+            margin: 10mm;
           }
 
           html, body {
             background: white !important;
+            background-color: white !important;
             overflow: visible !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          /* Sembunyikan form input dan header navigasi secara spesifik */
+          header,
+          .print\\:hidden,
+          div[class*="w-full md:w-5/12"] {
+            display: none !important;
+          }
+
+          /* Maksimalkan area preview agar bersih murni seukuran dokumen A4 */
+          .print-preview {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            background-color: white !important;
+            overflow: visible !important;
+          }
+
+          /* Matikan total border dan bayangan kontainer yang bikin garis abu-abu */
+          .print-document {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-shadow: none !important;
+            border: none !important;
+            outline: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            background-color: white !important;
+          }
+
+          /* Blokir sisa garis border/shadow tak kasat mata pada semua elemen */
+          *, ::before, ::after {
+            box-shadow: none !important;
+            border-color: transparent !important;
           }
         }
       `}</style>
