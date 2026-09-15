@@ -75,25 +75,28 @@ export default function TroubleshootEditor() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 0mm;
           }
 
           html, body {
             background: white !important;
             background-color: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
             overflow: visible !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
           }
 
-          /* Sembunyikan form input kiri dan header navigasi */
+          /* Sembunyikan header dan form input kiri secara mutlak */
           header,
           .print\\:hidden,
           div[class*="w-full md:w-5/12"] {
             display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
           }
 
-          /* Lebarkan area preview kanan agar full murni selebar kertas */
+          /* Buat kontainer utama dan preview jadi blok normal selebar kertas */
           .print-preview {
             width: 100% !important;
             max-width: 100% !important;
@@ -101,24 +104,26 @@ export default function TroubleshootEditor() {
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
-            overflow: visible !important;
             display: block !important;
+            position: static !important;
           }
 
-          /* Matikan total border dan bayangan kontainer dokumen agar garis abu-abu hilang */
-          .print-document {
+          /* Paksa dokumen cetak menempati halaman penuh tanpa border/shadow/garis kanan */
+          #print-document {
             width: 100% !important;
             max-width: 100% !important;
+            min-width: 100% !important;
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
-            padding: 0 !important;
             margin: 0 !important;
+            padding: 10mm 12mm !important;
             background: white !important;
             background-color: white !important;
+            position: static !important;
           }
 
-          /* Blokir sisa garis border/shadow tak kasat mata pada seluruh elemen */
+          /* Hapus semua bayangan dan garis tepi tersembunyi dari seluruh elemen */
           *, ::before, ::after {
             box-shadow: none !important;
             border-color: transparent !important;
@@ -397,7 +402,7 @@ export default function TroubleshootEditor() {
 
         {/* Right Side: Document Preview / Print Area */}
         <div className="print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white print:overflow-visible">
-          <div id="print-document" className="print-document bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:overflow-visible">
+          <div id="print-document" className="print-document bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between">
             <div>
               <div className="mb-3 flex justify-start items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
