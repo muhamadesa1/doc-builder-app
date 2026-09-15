@@ -78,59 +78,50 @@ export default function TroubleshootEditor() {
             margin: 10mm;
           }
 
-          /* Sembunyikan SEMUA elemen body secara total */
-          body * {
+          html, body {
+            background: white !important;
+            background-color: white !important;
+            overflow: visible !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          /* Sembunyikan form input kiri dan header navigasi */
+          header,
+          .print\\:hidden,
+          div[class*="w-full md:w-5/12"] {
             display: none !important;
           }
 
-          /* Tampilkan HANYA elemen yang punya kelas print-target dan isinya */
-          .print-target, .print-target * {
-            display: block !important;
-            visibility: visible !important;
-          }
-
-          /* Pastikan struktur fleksibel di dalam print-target tetap berjalan */
-          .print-target .flex {
-            display: flex !important;
-          }
-
-          .print-target .flex-1 {
-            flex: 1 1 0% !important;
-          }
-
-          .print-target .items-center {
-            align-items: center !important;
-          }
-
-          .print-target .justify-between {
-            justify-content: space-between !important;
-          }
-
-          .print-target .justify-start {
-            justify-content: flex-start !important;
-          }
-
-          .print-target img {
-            display: inline-block !important;
-          }
-
-          /* Atur posisi dan pastikan bersih total dari border/shadow/garis abu */
-          .print-target {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+          /* Lebarkan area preview kanan agar full murni selebar kertas */
+          .print-preview {
             width: 100% !important;
             max-width: 100% !important;
-            margin: 0 !important;
             padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            background-color: white !important;
+            overflow: visible !important;
+            display: block !important;
+          }
+
+          /* Matikan total border dan bayangan kontainer dokumen agar garis abu-abu hilang */
+          .print-document {
+            width: 100% !important;
+            max-width: 100% !important;
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
             background: white !important;
+            background-color: white !important;
           }
 
-          html, body {
-            background: white !important;
+          /* Blokir sisa garis border/shadow tak kasat mata pada seluruh elemen */
+          *, ::before, ::after {
+            box-shadow: none !important;
+            border-color: transparent !important;
           }
         }
       `}</style>
@@ -406,8 +397,7 @@ export default function TroubleshootEditor() {
 
         {/* Right Side: Document Preview / Print Area */}
         <div className="print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white print:overflow-visible">
-          {/* Kelas print-target ditambahkan di bawah ini agar aman saat dicetak */}
-          <div id="print-document" className="print-target print-document bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between">
+          <div id="print-document" className="print-document bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:overflow-visible">
             <div>
               <div className="mb-3 flex justify-start items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
