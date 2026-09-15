@@ -67,7 +67,7 @@ export default function TroubleshootEditor() {
   const showPrice = currentPartner.code === "CP" || currentPartner.code === "IPM";
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
+    <div id="print-area" className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
       <div className="absolute inset-0 z-0 opacity-40 dark:opacity-20 pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px]" />
       <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-indigo-200 via-purple-200 to-blue-200 dark:from-indigo-950 dark:via-purple-950 dark:to-blue-950 blur-[130px] rounded-full pointer-events-none opacity-50 z-0" />
 
@@ -78,25 +78,50 @@ export default function TroubleshootEditor() {
             margin: 10mm;
           }
 
-          html, body {
-            background: white !important;
-            background-color: white !important;
-            overflow: visible !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-
-          /* Sembunyikan header dan form input kiri */
-          header,
-          .print\\:hidden,
-          div[class*="w-full md:w-5/12"] {
+          /* Sembunyikan total SEMUA elemen di body secara default */
+          body * {
             display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-            overflow: hidden !important;
           }
 
-          /* Bersihkan kontainer preview */
+          /* Tampilkan HANYA elemen yang ada di dalam #print-area (kontainer dokumen preview) */
+          #print-area, #print-area * {
+            display: block !important;
+            visibility: visible !important;
+          }
+
+          /* Pastikan struktur layout flex di dalam dokumen tetap berjalan rapi */
+          #print-area .flex {
+            display: flex !important;
+          }
+
+          #print-area .flex-1 {
+            flex: 1 1 0% !important;
+          }
+
+          #print-area .items-center {
+            align-items: center !important;
+          }
+
+          #print-area .justify-between {
+            justify-content: space-between !important;
+          }
+
+          #print-area .justify-start {
+            justify-content: flex-start !important;
+          }
+
+          #print-area img {
+            display: inline-block !important;
+          }
+
+          /* Sembunyikan sidebar form input kiri dan header navigasi secara spesifik */
+          header,
+          .print-preview > div:first-child,
+          .print\\:hidden {
+            display: none !important;
+          }
+
+          /* Atur area preview dan dokumen agar bersih murni selebar kertas A4 tanpa garis abu */
           .print-preview {
             width: 100% !important;
             max-width: 100% !important;
@@ -104,26 +129,33 @@ export default function TroubleshootEditor() {
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
-            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
           }
 
-          /* Paksa dokumen cetak tanpa border, tanpa shadow, dan tanpa garis samping */
           #print-document {
             width: 100% !important;
             max-width: 100% !important;
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
-            margin: 0 !important;
             padding: 0 !important;
+            margin: 0 !important;
             background: white !important;
             background-color: white !important;
           }
 
-          /* Matikan semua border/shadow dari seluruh elemen anak */
+          /* Basmi total semua bayangan dan border tipis sisa dari elemen manapun */
           *, ::before, ::after {
             box-shadow: none !important;
             border-color: transparent !important;
+          }
+
+          html, body {
+            background: white !important;
+            background-color: white !important;
+            overflow: visible !important;
           }
         }
       `}</style>
@@ -399,7 +431,6 @@ export default function TroubleshootEditor() {
 
         {/* Right Side: Document Preview / Print Area */}
         <div className="print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white print:overflow-visible">
-          {/* Kelas border, shadow-xl, rounded-sm dihapus dari sini agar tidak meninggalkan garis abu-abu saat diprint */}
           <div id="print-document" className="print-document bg-white text-slate-900 px-12 pt-6 pb-8 w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between">
             <div>
               <div className="mb-3 flex justify-start items-center">
