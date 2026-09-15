@@ -22,8 +22,6 @@ export default function TroubleshootEditor() {
     jabatanCp: "Car Park Manager",
   });
 
-  const [loadingMekari, setLoadingMekari] = useState(false);
-
   const listJabatan = ["PIC", "LEAD", "Area Manager", "Car Park Manager"];
 
   const handleChange = (
@@ -39,96 +37,6 @@ export default function TroubleshootEditor() {
     }));
   };
 
-  // Fungsi pengiriman ke Mekari Sign dengan optimasi kompresi PDF agar tidak kebesaran payload-nya
-  const handleSendToMekariSign = async () => {
-    try {
-      setLoadingMekari(true);
-
-      if (!formData.picCp) {
-        alert("Mohon isi Nama Terang Partner / Manager terlebih dahulu!");
-        setLoadingMekari(false);
-        return;
-      }
-
-      // 1. Load dynamic html2canvas & jspdf
-      const html2canvas = (await import("html2canvas")).default;
-      const { jsPDF } = await import("jspdf");
-
-      const inputElement = document.getElementById("print-document");
-      if (!inputElement) {
-        throw new Error("Elemen dokumen cetak tidak ditemukan!");
-      }
-
-      // 2. Render canvas dengan skala optimal & pembersih stylesheet global
-      const canvas = await html2canvas(inputElement, {
-        scale: 0.9,
-        useCORS: true,
-        logging: false,
-        onclone: (clonedDoc) => {
-          const stylesheets = clonedDoc.querySelectorAll("link[rel='stylesheet'], style");
-          stylesheets.forEach((sheet) => sheet.remove());
-
-          const target = clonedDoc.getElementById("print-document");
-          if (target) {
-            target.style.color = "#000000";
-            target.style.backgroundColor = "#FFFFFF";
-            target.style.fontFamily = "sans-serif";
-          }
-        },
-      });
-
-      // Kompres ke JPEG kualitas 75% agar file Base64 kecil dan tidak kena limit Vercel
-      const imgData = canvas.toDataURL("image/jpeg", 0.75);
-
-      // 3. Buat instance PDF ukuran A4
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-
-      // 4. Ambil hasil PDF dalam format Base64
-      const pdfBase64Full = pdf.output("datauristring");
-      const pdfBase64 = pdfBase64Full.split(",")[1];
-
-      const payload = {
-        documentName: `BA Troubleshoot - ${formData.lokasi || "Parkee Lokasi"} (${formData.tanggal || "Draft"})`,
-        signerName: formData.picCp,
-        signerEmail: "partner.lokasi@email.com",
-        pdfBase64: pdfBase64,
-      };
-
-      const res = await fetch("/api/sign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const responseText = await res.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        data = { error: responseText };
-      }
-
-      console.log("Respon API Sign:", data);
-
-      if (!res.ok || !data.success) {
-        alert("MEKARI_RES_ERROR: " + JSON.stringify(data.error || data));
-        return;
-      }
-
-      alert("Berhasil! Dokumen Berita Acara Troubleshoot asli telah dikirim ke Mekari Sign.");
-    } catch (err: any) {
-      console.error("Detail Error:", err);
-      alert("CATCH_ERROR: " + (err?.message || JSON.stringify(err)));
-    } finally {
-      setLoadingMekari(false);
-    }
-  };
-
-  // Daftar lengkap perusahaan partner dengan inisial
   const partnerList = [
     { fullName: "PT. Centrepark Citra Corpora", code: "CP" },
     { fullName: "PT. Inovasi Parkir Mandiri", code: "IPM" },
@@ -160,10 +68,7 @@ export default function TroubleshootEditor() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
-      {/* Background Dot Grid Pattern */}
       <div className="absolute inset-0 z-0 opacity-40 dark:opacity-20 pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px]" />
-
-      {/* Background Soft Glow Orb */}
       <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-indigo-200 via-purple-200 to-blue-200 dark:from-indigo-950 dark:via-purple-950 dark:to-blue-950 blur-[130px] rounded-full pointer-events-none opacity-50 z-0" />
 
       <style jsx global>{`
@@ -240,14 +145,6 @@ export default function TroubleshootEditor() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleSendToMekariSign}
-              disabled={loadingMekari}
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full shadow transition-all duration-200 flex items-center gap-2 active:scale-95 disabled:opacity-50"
-            >
-              <span>✍️</span> {loadingMekari ? "Mengirim..." : "Kirim ke Mekari Sign"}
-            </button>
-
             <button
               onClick={() => window.print()}
               className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs rounded-full shadow transition-all duration-200 flex items-center gap-2 active:scale-95"
@@ -497,7 +394,7 @@ export default function TroubleshootEditor() {
 
         {/* Right Side: Document Preview / Print Area */}
         <div className="print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white print:overflow-visible">
-          <div id="print-document" className="print-document bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:p-0 print:w-full print:overflow-visible">
+          <div id="print-document" className="print-document bg-white text-slate-900 px-12 pt-6 pb-8 shadow-xl border rounded-sm w-full max-w-[210mm] text-sm font-sans flex flex-col justify-between print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:overflow-visible">
             <div>
               <div className="mb-3 flex justify-start items-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
