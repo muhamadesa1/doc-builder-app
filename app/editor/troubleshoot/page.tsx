@@ -78,44 +78,33 @@ export default function TroubleshootEditor() {
             margin: 0mm;
           }
 
-          html,
-          body {
-            background: white !important;
-            background-color: white !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+          /* Sembunyikan semua elemen di luar dokumen cetak */
+          body * {
+            visibility: hidden;
           }
 
-          header,
-          .print\\:hidden {
-            display: none !important;
+          #print-document, #print-document * {
+            visibility: visible;
           }
 
-          .print-preview {
+          /* Matikan total border dan bayangan agar garis samping kanan musnah */
+          #print-document {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
-            padding: 0 !important;
             margin: 0 !important;
-            background: white !important;
-            background-color: white !important;
-          }
-
-          .print-document {
-            width: 100% !important;
-            max-width: 100% !important;
+            padding: 10mm 12mm !important;
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
-            padding: 10mm 12mm !important;
-            margin: 0 !important;
             background: white !important;
-            background-color: white !important;
           }
 
-          /* Paksa matikan seluruh border sisa dan bayangan elemen */
-          *, ::before, ::after {
-            box-shadow: none !important;
-            border-color: transparent !important;
+          html, body {
+            background: white !important;
+            overflow: visible !important;
           }
         }
       `}</style>
