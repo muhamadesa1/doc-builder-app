@@ -81,12 +81,9 @@ export default function TroubleshootEditor() {
           html,
           body {
             background: white !important;
+            background-color: white !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            overflow: visible !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
           }
 
           header,
@@ -97,28 +94,28 @@ export default function TroubleshootEditor() {
           .print-preview {
             width: 100% !important;
             max-width: 100% !important;
-            height: auto !important;
-            overflow: visible !important;
-            position: static !important;
-            display: block !important;
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
+            background-color: white !important;
           }
 
           .print-document {
             width: 100% !important;
             max-width: 100% !important;
-            min-width: 100% !important;
-            height: auto !important;
-            overflow: visible !important;
-            position: static !important;
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
-            padding: 8mm 10mm !important;
+            padding: 10mm 12mm !important;
             margin: 0 !important;
             background: white !important;
+            background-color: white !important;
+          }
+
+          /* Paksa matikan seluruh border sisa dan bayangan elemen */
+          *, ::before, ::after {
+            box-shadow: none !important;
+            border-color: transparent !important;
           }
         }
       `}</style>
