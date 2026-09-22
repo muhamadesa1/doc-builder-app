@@ -95,7 +95,6 @@ export default function TroubleshootEditor() {
             display: none !important;
           }
 
-          /* Container utama tidak boleh menjadi scroll container saat print. */
           .print-workspace {
             display: block !important;
             width: 100% !important;
@@ -108,7 +107,6 @@ export default function TroubleshootEditor() {
             padding: 0 !important;
           }
 
-          /* Preview tidak boleh mempertahankan scrollbar saat dokumen 2+ halaman. */
           .print-preview {
             display: block !important;
             width: 100% !important;
@@ -117,34 +115,22 @@ export default function TroubleshootEditor() {
             min-height: 0 !important;
             max-height: none !important;
             overflow: visible !important;
-            overflow-x: visible !important;
-            overflow-y: visible !important;
             position: static !important;
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
           }
 
-          .print-preview::-webkit-scrollbar,
-          #print-document::-webkit-scrollbar {
-            width: 0 !important;
-            height: 0 !important;
-            display: none !important;
-          }
-
+          /* Trik utama: Paksa dokumen cetak selebar penuh dan hilangkan batas kotak kertas */
           #print-document {
             display: block !important;
             width: 100% !important;
-            max-width: 100% !important;
+            max-width: none !important;
             height: auto !important;
             min-height: 0 !important;
             max-height: none !important;
             overflow: visible !important;
-            overflow-x: visible !important;
-            overflow-y: visible !important;
             position: static !important;
             box-shadow: none !important;
             border: none !important;
@@ -155,21 +141,12 @@ export default function TroubleshootEditor() {
             background-color: white !important;
           }
 
-          /*
-           * Jangan mengubah semua border menjadi transparan.
-           * Aturan lama dapat menghilangkan border dokumen saat print.
-           */
           #print-document,
           #print-document * {
             box-shadow: none !important;
             outline: none !important;
           }
 
-          /*
-           * Dokumen menggunakan flex untuk preview layar.
-           * Saat print gunakan block agar tinggi mengikuti seluruh isi
-           * dan pagination 2+ halaman berjalan normal.
-           */
           #print-document > div {
             max-height: none !important;
             overflow: visible !important;
