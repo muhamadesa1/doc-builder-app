@@ -78,38 +78,74 @@ export default function TroubleshootEditor() {
             margin: 10mm;
           }
 
-          html, body {
+          html,
+          body {
             background: white !important;
             background-color: white !important;
             overflow: visible !important;
+            width: 100% !important;
             height: auto !important;
+            min-height: 0 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
 
-          /* Sembunyikan header navigasi dan form input sebelah kiri */
           header,
           .print\\:hidden {
             display: none !important;
           }
 
-          /* Biarkan dokumen menyesuaikan tinggi secara otomatis */
+          /* Container utama tidak boleh menjadi scroll container saat print. */
+          .print-workspace {
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            position: static !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          /* Preview tidak boleh mempertahankan scrollbar saat dokumen 2+ halaman. */
           .print-preview {
+            display: block !important;
             width: 100% !important;
             max-width: 100% !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+            position: static !important;
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
-            position: static !important;
-            display: block !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+          }
+
+          .print-preview::-webkit-scrollbar,
+          #print-document::-webkit-scrollbar {
+            width: 0 !important;
+            height: 0 !important;
+            display: none !important;
           }
 
           #print-document {
+            display: block !important;
             width: 100% !important;
             max-width: 100% !important;
             height: auto !important;
-            min-height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+            position: static !important;
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
@@ -117,15 +153,44 @@ export default function TroubleshootEditor() {
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
-            position: static !important;
           }
 
-          /* Basmi total bayangan dan garis tepi sisa pada seluruh elemen di dalam dokumen */
-          #print-document *, 
-          #print-document ::before, 
-          #print-document ::after {
+          /*
+           * Jangan mengubah semua border menjadi transparan.
+           * Aturan lama dapat menghilangkan border dokumen saat print.
+           */
+          #print-document,
+          #print-document * {
             box-shadow: none !important;
-            border-color: transparent !important;
+            outline: none !important;
+          }
+
+          /*
+           * Dokumen menggunakan flex untuk preview layar.
+           * Saat print gunakan block agar tinggi mengikuti seluruh isi
+           * dan pagination 2+ halaman berjalan normal.
+           */
+          #print-document > div {
+            max-height: none !important;
+            overflow: visible !important;
+          }
+
+          table {
+            page-break-inside: auto;
+            break-inside: auto;
+          }
+
+          thead {
+            display: table-header-group;
+          }
+
+          tr {
+            page-break-inside: auto;
+            break-inside: auto;
+          }
+
+          img {
+            max-width: 100% !important;
           }
         }
       `}</style>
@@ -163,7 +228,7 @@ export default function TroubleshootEditor() {
       </header>
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden z-10">
+      <div className="print-workspace flex-1 flex flex-col md:flex-row overflow-hidden z-10">
         
         {/* Left Side: Input Form */}
         <div className="w-full md:w-5/12 p-6 overflow-y-auto border-r border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md print:hidden space-y-6">
