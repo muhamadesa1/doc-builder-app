@@ -75,7 +75,7 @@ export default function TroubleshootEditor() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 5mm;
           }
 
           html,
@@ -85,7 +85,6 @@ export default function TroubleshootEditor() {
             overflow: visible !important;
             width: 100% !important;
             height: auto !important;
-            min-height: 0 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
@@ -95,82 +94,37 @@ export default function TroubleshootEditor() {
             display: none !important;
           }
 
-          .print-workspace {
-            display: block !important;
-            width: 100% !important;
-            height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
-            overflow: visible !important;
-            position: static !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-
-          /* Matikan fungsi flex/centering pada preview saat print agar tidak menarik garis ke tengah teks */
+          .print-workspace,
           .print-preview {
             display: block !important;
             width: 100% !important;
             max-width: 100% !important;
-            height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
-            overflow: visible !important;
-            position: static !important;
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
           }
 
-          /* Paksa dokumen persis selebar 100% halaman cetak tanpa ada batasan max-width kotak semu */
           #print-document {
             display: block !important;
             width: 100% !important;
             max-width: 100% !important;
             height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
-            overflow: visible !important;
-            position: static !important;
-            box-shadow: none !important;
-            border: none !important;
-            outline: none !important;
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
-          }
-
-          #print-document,
-          #print-document * {
             box-shadow: none !important;
+            border: none !important;
             outline: none !important;
           }
 
-          #print-document > div {
-            max-height: none !important;
-            overflow: visible !important;
-          }
-
-          table {
-            page-break-inside: auto;
-            break-inside: auto;
-          }
-
-          thead {
-            display: table-header-group;
-          }
-
-          tr {
-            page-break-inside: auto;
-            break-inside: auto;
-          }
-
-          img {
-            max-width: 100% !important;
+          #print-document *,
+          #print-document::before,
+          #print-document::after {
+            box-shadow: none !important;
+            border-color: transparent !important;
+            outline: none !important;
           }
         }
       `}</style>
@@ -539,7 +493,7 @@ export default function TroubleshootEditor() {
                 <div className="text-left space-y-14">
                   <p className="font-bold">{currentPartner.fullName}</p>
                   <div>
-                    <p className="font-bold underline">{formData.picCp || " "}</p>
+                    <p className="p-3.5 underline">{formData.picCp || " "}</p>
                     <p className="font-semibold text-slate-700">{formData.jabatanCp}</p>
                   </div>
                 </div>
