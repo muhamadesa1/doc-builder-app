@@ -122,11 +122,11 @@ export default function TroubleshootEditor() {
             background-color: white !important;
           }
 
-          /* Trik utama: Paksa dokumen cetak selebar penuh dan hilangkan batas kotak kertas */
+          /* Kembalikan ukuran dokumen pas selebar standar A4 (210mm) agar garis bayangan kertas kembali mepet ke pinggir kanan teks */
           #print-document {
             display: block !important;
-            width: 100% !important;
-            max-width: none !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
             height: auto !important;
             min-height: 0 !important;
             max-height: none !important;
@@ -136,7 +136,7 @@ export default function TroubleshootEditor() {
             border: none !important;
             outline: none !important;
             padding: 0 !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
             background: white !important;
             background-color: white !important;
           }
