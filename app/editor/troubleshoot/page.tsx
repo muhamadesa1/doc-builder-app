@@ -107,6 +107,7 @@ export default function TroubleshootEditor() {
             padding: 0 !important;
           }
 
+          /* Matikan fungsi flex/centering pada preview saat print agar tidak menarik garis ke tengah teks */
           .print-preview {
             display: block !important;
             width: 100% !important;
@@ -120,13 +121,15 @@ export default function TroubleshootEditor() {
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
           }
 
-          /* Kembalikan ukuran dokumen pas selebar standar A4 (210mm) agar garis bayangan kertas kembali mepet ke pinggir kanan teks */
+          /* Paksa dokumen persis selebar 100% halaman cetak tanpa ada batasan max-width kotak semu */
           #print-document {
             display: block !important;
-            width: 210mm !important;
-            max-width: 210mm !important;
+            width: 100% !important;
+            max-width: 100% !important;
             height: auto !important;
             min-height: 0 !important;
             max-height: none !important;
@@ -136,7 +139,7 @@ export default function TroubleshootEditor() {
             border: none !important;
             outline: none !important;
             padding: 0 !important;
-            margin: 0 auto !important;
+            margin: 0 !important;
             background: white !important;
             background-color: white !important;
           }
