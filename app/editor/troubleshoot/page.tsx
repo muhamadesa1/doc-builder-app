@@ -75,7 +75,7 @@ export default function TroubleshootEditor() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 5mm;
+            margin: 10mm;
           }
 
           html,
@@ -103,6 +103,13 @@ export default function TroubleshootEditor() {
             margin: 0 !important;
             background: white !important;
             background-color: white !important;
+          }
+
+          /* Pastikan blok tanda tangan tidak terpotong atau terpisah canggung antar halaman */
+          .signature-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-top: 40px !important;
           }
 
           #print-document {
@@ -481,7 +488,8 @@ export default function TroubleshootEditor() {
               </div>
             </div>
 
-            <div className="mt-8 pt-2">
+            {/* Bagian Tanda Tangan dengan kelas anti-potong page-break */}
+            <div className="signature-section mt-12 pt-4">
               <div className="flex justify-between items-end px-4">
                 <div className="text-left space-y-14">
                   <p className="font-bold">PT Inovasi Anak Indonesia</p>
@@ -493,7 +501,7 @@ export default function TroubleshootEditor() {
                 <div className="text-left space-y-14">
                   <p className="font-bold">{currentPartner.fullName}</p>
                   <div>
-                    <p className="p-3.5 underline">{formData.picCp || " "}</p>
+                    <p className="font-bold underline">{formData.picCp || " "}</p>
                     <p className="font-semibold text-slate-700">{formData.jabatanCp}</p>
                   </div>
                 </div>
