@@ -197,7 +197,6 @@ export default function LiveEditor() {
             display: none !important;
           }
 
-          /* Pastikan area preview mengizinkan pemecahan halaman otomatis secara natural */
           .print-preview {
             width: 100% !important;
             max-width: 100% !important;
@@ -215,6 +214,7 @@ export default function LiveEditor() {
             max-width: 100% !important;
             min-width: 0 !important;
             height: auto !important;
+            max-height: none !important;
             overflow: visible !important;
             position: static !important;
             box-shadow: none !important;
@@ -225,8 +225,8 @@ export default function LiveEditor() {
             background: white !important;
           }
 
-          /* Izinkan tabel dan baris terpecah dengan mulus ke halaman berikutnya */
-          table, tr, td, th {
+          /* Izinkan elemen mengalir dan terpecah secara natural ke halaman berikutnya */
+          div, p, table, tr, td, th {
             page-break-inside: auto;
             break-inside: auto;
           }
@@ -234,7 +234,7 @@ export default function LiveEditor() {
           .signature-section {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-top: 50px !important;
+            margin-top: 40px !important;
           }
         }
       `}</style>
@@ -455,211 +455,199 @@ export default function LiveEditor() {
         <div className="print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white print:overflow-visible">
           <div id="print-document" className="print-document bg-white text-slate-900 px-10 pt-6 pb-10 shadow-xl border rounded-sm w-full max-w-[210mm] text-[11px] leading-snug font-sans print:shadow-none print:border-none print:p-0 print:w-full print:overflow-visible">
             
-            <table className="w-full border-none">
-              <thead>
-                <tr>
-                  <th className="font-normal text-left pb-4 bg-white">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/parkee-logo.png" alt="PARKEE Logo" className="w-[200px] h-auto object-contain" />
-                  </th>
-                </tr>
-              </thead>
+            {/* Logo Header */}
+            <div className="mb-4 pb-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/parkee-logo.png" alt="PARKEE Logo" className="w-[200px] h-auto object-contain" />
+            </div>
 
-              <tbody>
-                <tr>
-                  <td>
-                    {/* Title */}
-                    <h1 className="text-center text-sm font-bold tracking-wide mb-4 text-black uppercase pb-1">
-                      BERITA ACARA SERAH TERIMA BARANG & PENYELESAIAN PEKERJAAN
-                    </h1>
+            {/* Title */}
+            <h1 className="text-center text-sm font-bold tracking-wide mb-4 text-black uppercase pb-1">
+              BERITA ACARA SERAH TERIMA BARANG & PENYELESAIAN PEKERJAAN
+            </h1>
 
-                    {/* Opening Paragraph */}
-                    <p className="mb-3 text-justify leading-relaxed">
-                      Pada hari <span className="font-semibold underline">{formData.hari || ".........."}</span>, tanggal <span className="font-semibold underline">{formData.tanggal || ".........."}</span> {formData.tahun}, telah dilakukan penyerahan barang untuk keperluan migrasi (live) PARKEE OS dan pengerjaan instalasi alat & migrasi PARKEE OS oleh PT Inovasi Anak Indonesia (“IAI”), dengan rincian sebagai berikut:
-                    </p>
+            {/* Opening Paragraph */}
+            <p className="mb-3 text-justify leading-relaxed">
+              Pada hari <span className="font-semibold underline">{formData.hari || ".........."}</span>, tanggal <span className="font-semibold underline">{formData.tanggal || ".........."}</span> {formData.tahun}, telah dilakukan penyerahan barang untuk keperluan migrasi (live) PARKEE OS dan pengerjaan instalasi alat & migrasi PARKEE OS oleh PT Inovasi Anak Indonesia (“IAI”), dengan rincian sebagai berikut:
+            </p>
 
-                    {/* Details A - D */}
-                    <div className="space-y-1.5 mb-3 pl-2">
-                      <div className="flex">
-                        <span className="w-44 font-semibold">a. Lokasi parkir</span>
-                        <span className="w-4">:</span>
-                        <span className="flex-1 font-semibold">{formData.lokasi}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="w-44 font-semibold">b. Dimigrasi oleh</span>
-                        <span className="w-4">:</span>
-                        <span className="flex-1">{formData.dimigrasiOleh}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="w-44 font-semibold">c. Dimulai dari jam</span>
-                        <span className="w-4">:</span>
-                        <span className="flex-1">{formData.jamMulai ? `${formData.jamMulai} WIB` : ""} s/d {formData.jamSelesai ? `${formData.jamSelesai} WIB` : ""}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="w-44 font-semibold">d. Aset yang diserahterimakan (“Hardware”)</span>
-                        <span className="w-4">:</span>
-                        <span className="flex-1">Aset tambahan yang disediakan oleh IAI (masih akan dibayarkan kepada IAI), terlampir pada Delivery Slip.</span>
-                      </div>
-                    </div>
+            {/* Details A - D */}
+            <div className="space-y-1.5 mb-3 pl-2">
+              <div className="flex">
+                <span className="w-44 font-semibold">a. Lokasi parkir</span>
+                <span className="w-4">:</span>
+                <span className="flex-1 font-semibold">{formData.lokasi}</span>
+              </div>
+              <div className="flex">
+                <span className="w-44 font-semibold">b. Dimigrasi oleh</span>
+                <span className="w-4">:</span>
+                <span className="flex-1">{formData.dimigrasiOleh}</span>
+              </div>
+              <div className="flex">
+                <span className="w-44 font-semibold">c. Dimulai dari jam</span>
+                <span className="w-4">:</span>
+                <span className="flex-1">{formData.jamMulai ? `${formData.jamMulai} WIB` : ""} s/d {formData.jamSelesai ? `${formData.jamSelesai} WIB` : ""}</span>
+              </div>
+              <div className="flex">
+                <span className="w-44 font-semibold">d. Aset yang diserahterimakan (“Hardware”)</span>
+                <span className="w-4">:</span>
+                <span className="flex-1">Aset tambahan yang disediakan oleh IAI (masih akan dibayarkan kepada IAI), terlampir pada Delivery Slip.</span>
+              </div>
+            </div>
 
-                    {/* Detail E: Tabel Aset CP Digantikan */}
-                    <div className="mb-3">
-                      <p className="font-semibold mb-1">e. Aset {currentPartner.code} yang digantikan :</p>
-                      <table className="w-full border-collapse border border-black text-[10px]">
-                        <thead>
-                          <tr className="bg-slate-100">
-                            <th className="border border-black px-2 py-0.5 text-left w-1/2">Aset {currentPartner.code} yang digantikan</th>
-                            <th className="border border-black px-2 py-0.5 text-center w-1/6">Qty</th>
-                            <th className="border border-black px-2 py-0.5 text-left w-1/3">Keterangan</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {formData.asetCp.map((item, i) => (
-                            <tr key={i}>
-                              <td className="border border-black px-2 py-0.5">{item.name}</td>
-                              <td className="border border-black px-2 py-0.5 text-center">{item.qty}</td>
-                              <td className="border border-black px-2 py-0.5">{item.ket}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+            {/* Detail E: Tabel Aset CP Digantikan */}
+            <div className="mb-3">
+              <p className="font-semibold mb-1">e. Aset {currentPartner.code} yang digantikan :</p>
+              <table className="w-full border-collapse border border-black text-[10px]">
+                <thead>
+                  <tr className="bg-slate-100">
+                    <th className="border border-black px-2 py-0.5 text-left w-1/2">Aset {currentPartner.code} yang digantikan</th>
+                    <th className="border border-black px-2 py-0.5 text-center w-1/6">Qty</th>
+                    <th className="border border-black px-2 py-0.5 text-left w-1/3">Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.asetCp.map((item, i) => (
+                    <tr key={i}>
+                      <td className="border border-black px-2 py-0.5">{item.name}</td>
+                      <td className="border border-black px-2 py-0.5 text-center">{item.qty}</td>
+                      <td className="border border-black px-2 py-0.5">{item.ket}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-                    {/* Detail F: Issue Sebelum Migrasi */}
-                    <div className="mb-3">
-                      <p className="font-semibold">f. Issue Sebelum Migrasi :</p>
-                      <div className="p-1.5 border border-black min-h-[35px] text-[10px] whitespace-pre-wrap bg-slate-50">
-                        {formData.issueSebelumMigrasi || "Tidak ada issue / Sesuai standar."}
-                      </div>
-                    </div>
+            {/* Detail F: Issue Sebelum Migrasi */}
+            <div className="mb-3">
+              <p className="font-semibold">f. Issue Sebelum Migrasi :</p>
+              <div className="p-1.5 border border-black min-h-[35px] text-[10px] whitespace-pre-wrap bg-slate-50">
+                {formData.issueSebelumMigrasi || "Tidak ada issue / Sesuai standar."}
+              </div>
+            </div>
 
-                    {/* Detail G: Unit Testing */}
-                    <div className="mb-3">
-                      <p className="font-semibold mb-1">g. Unit Testing</p>
-                      <table className="w-full border-collapse border border-black text-[10px]">
-                        <thead>
-                          <tr className="bg-slate-100">
-                            <th className="border border-black px-2 py-0.5 text-left">Konfigurasi Yang Diperlukan</th>
-                            <th className="border border-black px-2 py-0.5 text-center w-1/4">Hasil</th>
-                            <th className="border border-black px-2 py-0.5 text-left w-1/3">Keterangan</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { key: "printer", label: "Pengujian Printer" },
-                            { key: "reader", label: "Pengujian Reader" },
-                            { key: "camera", label: "Pengujian Camera" },
-                            { key: "gate1", label: "Pengujian Gate" },
-                            { key: "booster", label: "Pengujian Booster" },
-                            { key: "sound", label: "Pengujian Sound" },
-                            { key: "gate2", label: "Pengujian Gate" },
-                            { key: "ambilTiket", label: "Pengujian Ambil Tiket" },
-                            { key: "transaksiTiket", label: "Pengujian Transaksi Tiket" },
-                            { key: "transaksiKartu", label: "Pengujian Transaksi Kartu", extra: `Jumlah samcard: ${formData.unitTesting.samcardQty}` },
-                            { key: "tarif", label: "Pengujian Tarif" },
-                            { key: "membership", label: "Pengujian Membership Product" },
-                            { key: "upsServer", label: "Ketersediaan UPS pada Server" },
-                            { key: "kesesuaianAsset", label: "Kesesuaian Asset Standar Parkee" },
-                          ].map((row, i) => (
-                            <tr key={i}>
-                              <td className="border border-black px-2 py-0.5">{row.label}</td>
-                              <td className="border border-black px-2 py-0.5 text-center">
-                                <span className="font-semibold">{formData.unitTesting[row.key as keyof typeof formData.unitTesting]}</span>
-                              </td>
-                              <td className="border border-black px-2 py-0.5">{row.extra || ""}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+            {/* Detail G: Unit Testing */}
+            <div className="mb-3">
+              <p className="font-semibold mb-1">g. Unit Testing</p>
+              <table className="w-full border-collapse border border-black text-[10px]">
+                <thead>
+                  <tr className="bg-slate-100">
+                    <th className="border border-black px-2 py-0.5 text-left">Konfigurasi Yang Diperlukan</th>
+                    <th className="border border-black px-2 py-0.5 text-center w-1/4">Hasil</th>
+                    <th className="border border-black px-2 py-0.5 text-left w-1/3">Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { key: "printer", label: "Pengujian Printer" },
+                    { key: "reader", label: "Pengujian Reader" },
+                    { key: "camera", label: "Pengujian Camera" },
+                    { key: "gate1", label: "Pengujian Gate" },
+                    { key: "booster", label: "Pengujian Booster" },
+                    { key: "sound", label: "Pengujian Sound" },
+                    { key: "gate2", label: "Pengujian Gate" },
+                    { key: "ambilTiket", label: "Pengujian Ambil Tiket" },
+                    { key: "transaksiTiket", label: "Pengujian Transaksi Tiket" },
+                    { key: "transaksiKartu", label: "Pengujian Transaksi Kartu", extra: `Jumlah samcard: ${formData.unitTesting.samcardQty}` },
+                    { key: "tarif", label: "Pengujian Tarif" },
+                    { key: "membership", label: "Pengujian Membership Product" },
+                    { key: "upsServer", label: "Ketersediaan UPS pada Server" },
+                    { key: "kesesuaianAsset", label: "Kesesuaian Asset Standar Parkee" },
+                  ].map((row, i) => (
+                    <tr key={i}>
+                      <td className="border border-black px-2 py-0.5">{row.label}</td>
+                      <td className="border border-black px-2 py-0.5 text-center">
+                        <span className="font-semibold">{formData.unitTesting[row.key as keyof typeof formData.unitTesting]}</span>
+                      </td>
+                      <td className="border border-black px-2 py-0.5">{row.extra || ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-                    {/* Kondisi Harddisk Server Table */}
-                    <div className="mb-3">
-                      <p className="font-semibold mb-1 uppercase text-[10px]">KONDISI HARDDISK SERVER</p>
-                      <table className="w-full border-collapse border border-black text-[10px] text-center">
-                        <thead>
-                          <tr className="bg-slate-100">
-                            <th className="border border-black py-0.5">HEALTH</th>
-                            <th className="border border-black py-0.5">PERFORMANCE</th>
-                            <th className="border border-black py-0.5">EST. TIME (Days)</th>
-                            <th className="border border-black py-0.5">BAD SECTOR</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td className="border border-black py-1">{formData.hddServer.health || "-"}</td>
-                            <td className="border border-black py-1">{formData.hddServer.performance || "-"}</td>
-                            <td className="border border-black py-1">{formData.hddServer.estTime || "-"}</td>
-                            <td className="border border-black py-1">{formData.hddServer.badSector || "-"}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+            {/* Kondisi Harddisk Server Table */}
+            <div className="mb-3">
+              <p className="font-semibold mb-1 uppercase text-[10px]">KONDISI HARDDISK SERVER</p>
+              <table className="w-full border-collapse border border-black text-[10px] text-center">
+                <thead>
+                  <tr className="bg-slate-100">
+                    <th className="border border-black py-0.5">HEALTH</th>
+                    <th className="border border-black py-0.5">PERFORMANCE</th>
+                    <th className="border border-black py-0.5">EST. TIME (Days)</th>
+                    <th className="border border-black py-0.5">BAD SECTOR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-black py-1">{formData.hddServer.health || "-"}</td>
+                    <td className="border border-black py-1">{formData.hddServer.performance || "-"}</td>
+                    <td className="border border-black py-1">{formData.hddServer.estTime || "-"}</td>
+                    <td className="border border-black py-1">{formData.hddServer.badSector || "-"}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-                    {/* Points H & I */}
-                    <p className="mb-1 text-justify">
-                      h. IAI telah melakukan dan menyelesaikan pekerjaan pemasangan Hardware dan pekerjaan instalasi lainnya untuk migrasi PARKEE OS.
-                    </p>
-                    <p className="mb-3 text-justify">
-                      i. Hasil seluruh pekerjaan telah diperiksa oleh kedua pihak. PARKEE OS sudah berfungsi dengan baik dan sesuai dengan peruntukannya.
-                    </p>
+            {/* Points H & I */}
+            <p className="mb-1 text-justify">
+              h. IAI telah melakukan dan menyelesaikan pekerjaan pemasangan Hardware dan pekerjaan instalasi lainnya untuk migrasi PARKEE OS.
+            </p>
+            <p className="mb-3 text-justify">
+              i. Hasil seluruh pekerjaan telah diperiksa oleh kedua pihak. PARKEE OS sudah berfungsi dengan baik dan sesuai dengan peruntukannya.
+            </p>
 
-                    {/* Detail J: Versi & Fitur */}
-                    <div className="mb-3 border border-black p-2">
-                      <p className="font-semibold mb-1">j. List Versi dan Fitur</p>
-                      <div className="grid grid-cols-2 gap-2 text-[10px]">
-                        <div>
-                          <span className="font-semibold">Versi:</span>
-                          <ol className="list-decimal pl-4">
-                            <li>{formData.versi || "-"}</li>
-                          </ol>
-                        </div>
-                        <div>
-                          <span className="font-semibold">Fitur:</span>
-                          <ol className="list-decimal pl-4">
-                            {formData.fitur.map((f, idx) => f ? <li key={idx}>{f}</li> : null)}
-                          </ol>
-                        </div>
-                      </div>
-                    </div>
+            {/* Detail J: Versi & Fitur */}
+            <div className="mb-3 border border-black p-2">
+              <p className="font-semibold mb-1">j. List Versi dan Fitur</p>
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div>
+                  <span className="font-semibold">Versi:</span>
+                  <ol className="list-decimal pl-4">
+                    <li>{formData.versi || "-"}</li>
+                  </ol>
+                </div>
+                <div>
+                  <span className="font-semibold">Fitur:</span>
+                  <ol className="list-decimal pl-4">
+                    {formData.fitur.map((f, idx) => f ? <li key={idx}>{f}</li> : null)}
+                  </ol>
+                </div>
+              </div>
+            </div>
 
-                    {/* Table Jumlah PC */}
-                    <div className="mb-4">
-                      <p className="font-semibold mb-1 uppercase text-[10px]">JUMLAH PC YANG DIINSTALL</p>
-                      <table className="w-full border-collapse border border-black text-[10px] text-center">
-                        <thead>
-                          <tr className="bg-slate-100">
-                            <th className="border border-black py-0.5">Pintu Masuk</th>
-                            <th className="border border-black py-0.5">Pintu Keluar</th>
-                            <th className="border border-black py-0.5">Server Admin & Lainnya</th>
-                            <th className="border border-black py-0.5">Keterangan</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td className="border border-black py-1">{formData.pcInstalled.masuk || "-"}</td>
-                            <td className="border border-black py-1">{formData.pcInstalled.keluar || "-"}</td>
-                            <td className="border border-black py-1">{formData.pcInstalled.serverAdmin || "-"}</td>
-                            <td className="border border-black py-1 text-left px-2">{formData.pcInstalled.keterangan || "*Jumlah gate aktif"}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+            {/* Table Jumlah PC */}
+            <div className="mb-4">
+              <p className="font-semibold mb-1 uppercase text-[10px]">JUMLAH PC YANG DIINSTALL</p>
+              <table className="w-full border-collapse border border-black text-[10px] text-center">
+                <thead>
+                  <tr className="bg-slate-100">
+                    <th className="border border-black py-0.5">Pintu Masuk</th>
+                    <th className="border border-black py-0.5">Pintu Keluar</th>
+                    <th className="border border-black py-0.5">Server Admin & Lainnya</th>
+                    <th className="border border-black py-0.5">Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-black py-1">{formData.pcInstalled.masuk || "-"}</td>
+                    <td className="border border-black py-1">{formData.pcInstalled.keluar || "-"}</td>
+                    <td className="border border-black py-1">{formData.pcInstalled.serverAdmin || "-"}</td>
+                    <td className="border border-black py-1 text-left px-2">{formData.pcInstalled.keterangan || "*Jumlah gate aktif"}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-                    {/* Pernyataan */}
-                    <div className="mb-4 text-[10px] leading-relaxed">
-                      <p className="font-semibold mb-1">Pernyataan:</p>
-                      <ol className="list-decimal pl-4 space-y-0.5">
-                        <li>Pekerjaan dilakukan oleh IAI di bawah pengawasan personil {currentPartner.fullName}.</li>
-                        <li>Kondisi objek pekerjaan pada saat sebelum dan sesudah IAI melakukan migrasi PARKEE OS, dibuktikan melalui foto yang diambil oleh personil IAI.</li>
-                        <li>Team OPS {currentPartner.fullName} wajib menginfokan kepada IAI apabila terdapat perubahan jumlah gate aktif. Jika Team OPS {currentPartner.fullName} tidak menginfokan perubahan jumlah gate aktif, maka IAI akan melakukan penagihan atas jumlah gate aktif sebagaimana yang tertera diatas.</li>
-                      </ol>
-                    </div>
-
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            {/* Pernyataan */}
+            <div className="mb-4 text-[10px] leading-relaxed">
+              <p className="font-semibold mb-1">Pernyataan:</p>
+              <ol className="list-decimal pl-4 space-y-0.5">
+                <li>Pekerjaan dilakukan oleh IAI di bawah pengawasan personil {currentPartner.fullName}.</li>
+                <li>Kondisi objek pekerjaan pada saat sebelum dan sesudah IAI melakukan migrasi PARKEE OS, dibuktikan melalui foto yang diambil oleh personil IAI.</li>
+                <li>Team OPS {currentPartner.fullName} wajib menginfokan kepada IAI apabila terdapat perubahan jumlah gate aktif. Jika Team OPS {currentPartner.fullName} tidak menginfokan perubahan jumlah gate aktif, maka IAI akan melakukan penagihan atas jumlah gate aktif sebagaimana yang tertera diatas.</li>
+              </ol>
+            </div>
 
             {/* Bottom Signatures */}
             <div className="signature-section mt-8 pt-2">
