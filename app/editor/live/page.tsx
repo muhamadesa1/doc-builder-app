@@ -177,7 +177,7 @@ export default function LiveEditor() {
         @media print {
           @page {
             size: A4 portrait;
-            margin: 0mm;
+            margin: 10mm;
           }
 
           html,
@@ -186,6 +186,7 @@ export default function LiveEditor() {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
             overflow: visible !important;
+            height: auto !important;
             width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
@@ -196,6 +197,7 @@ export default function LiveEditor() {
             display: none !important;
           }
 
+          /* Pastikan area preview mengizinkan pemecahan halaman otomatis secara natural */
           .print-preview {
             width: 100% !important;
             max-width: 100% !important;
@@ -209,20 +211,30 @@ export default function LiveEditor() {
           }
 
           .print-document {
-            width: 100vw !important;
-            max-width: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
             min-width: 0 !important;
             height: auto !important;
             overflow: visible !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            position: static !important;
             box-shadow: none !important;
             border: none !important;
             outline: none !important;
-            padding: 8mm 10mm !important;
+            padding: 0 !important;
             margin: 0 !important;
             background: white !important;
+          }
+
+          /* Izinkan tabel dan baris terpecah dengan mulus ke halaman berikutnya */
+          table, tr, td, th {
+            page-break-inside: auto;
+            break-inside: auto;
+          }
+
+          .signature-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-top: 50px !important;
           }
         }
       `}</style>
@@ -644,31 +656,32 @@ export default function LiveEditor() {
                       </ol>
                     </div>
 
-                    {/* Bottom Signatures */}
-                    <div className="mt-8 pt-2">
-                      <div className="flex justify-between items-end px-4 text-xs">
-                        <div className="text-left space-y-12">
-                          <p className="font-bold">PT Inovasi Anak Indonesia</p>
-                          <div>
-                            <p className="font-bold underline">{formData.picParkee || " "}</p>
-                            <p className="font-semibold text-slate-700">IT Support</p>
-                          </div>
-                        </div>
-
-                        <div className="text-left space-y-12">
-                          <p className="font-bold">{currentPartner.fullName}</p>
-                          <div>
-                            <p className="font-bold underline">{formData.picCp || " "}</p>
-                            <p className="font-semibold text-slate-700">{formData.jabatanCp}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
                   </td>
                 </tr>
               </tbody>
             </table>
+
+            {/* Bottom Signatures */}
+            <div className="signature-section mt-8 pt-2">
+              <div className="flex justify-between items-end px-4 text-xs">
+                <div className="text-left space-y-12">
+                  <p className="font-bold">PT Inovasi Anak Indonesia</p>
+                  <div>
+                    <p className="font-bold underline">{formData.picParkee || " "}</p>
+                    <p className="font-semibold text-slate-700">IT Support</p>
+                  </div>
+                </div>
+
+                <div className="text-left space-y-12">
+                  <p className="font-bold">{currentPartner.fullName}</p>
+                  <div>
+                    <p className="font-bold underline">{formData.picCp || " "}</p>
+                    <p className="font-semibold text-slate-700">{formData.jabatanCp}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
