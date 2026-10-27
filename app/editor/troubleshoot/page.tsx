@@ -67,7 +67,7 @@ export default function TroubleshootEditor() {
   const showPrice = currentPartner.code === "CP" || currentPartner.code === "IPM";
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-x-hidden print:overflow-visible">
       <div className="absolute inset-0 z-0 opacity-40 dark:opacity-20 pointer-events-none bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px]" />
       <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-indigo-200 via-purple-200 to-blue-200 dark:from-indigo-950 dark:via-purple-950 dark:to-blue-950 blur-[130px] rounded-full pointer-events-none opacity-50 z-0" />
 
@@ -99,6 +99,9 @@ export default function TroubleshootEditor() {
             display: block !important;
             width: 100% !important;
             max-width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
@@ -169,7 +172,7 @@ export default function TroubleshootEditor() {
       </header>
 
       {/* Main Workspace */}
-      <div className="print-workspace flex-1 flex flex-col md:flex-row overflow-hidden z-10">
+      <div className="print-workspace flex-1 flex flex-col md:flex-row overflow-hidden z-10 print:overflow-visible">
         
         {/* Left Side: Input Form */}
         <div className="w-full md:w-5/12 p-6 overflow-y-auto border-r border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md print:hidden space-y-6">
