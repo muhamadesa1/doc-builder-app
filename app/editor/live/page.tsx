@@ -186,9 +186,33 @@ export default function LiveEditor() {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
             overflow: visible !important;
-            width: 100% !important;
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+            width: auto !important;
+            height: auto !important;
+            max-width: none !important;
+            max-height: none !important;
             margin: 0 !important;
             padding: 0 !important;
+          }
+
+          /* Root wrapper + semua panel overflow dilepas saat print */
+          .min-h-screen.overflow-x-hidden,
+          .overflow-x-hidden,
+          .overflow-hidden,
+          .overflow-y-auto,
+          .overflow-auto {
+            overflow: visible !important;
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+            height: auto !important;
+            max-height: none !important;
+          }
+
+          /* Container layout utama (baris dengan overflow-hidden) saat mode print */
+          .flex-1.flex.flex-col.md\\:flex-row.overflow-hidden {
+            display: block !important;
+            overflow: visible !important;
           }
 
           header,
