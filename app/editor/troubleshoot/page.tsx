@@ -124,9 +124,27 @@ export default function TroubleshootEditor() {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
             overflow: visible !important;
-            width: 100% !important;
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+            width: auto !important;
+            height: auto !important;
+            max-width: none !important;
+            max-height: none !important;
             margin: 0 !important;
             padding: 0 !important;
+          }
+
+          /* Root wrapper: lepas overflow-x-hidden agar tidak bikin garis scroll horizontal */
+          .min-h-screen.overflow-x-hidden,
+          .overflow-x-hidden,
+          .overflow-hidden,
+          .overflow-y-auto,
+          .overflow-auto {
+            overflow: visible !important;
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+            height: auto !important;
+            max-height: none !important;
           }
 
           header,
