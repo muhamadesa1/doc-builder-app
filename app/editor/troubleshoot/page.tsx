@@ -134,6 +134,12 @@ export default function TroubleshootEditor() {
             display: none !important;
           }
 
+          /* Container layout utama (baris dengan overflow-hidden) saat mode print */
+          .flex-1.flex.flex-col.md\\:flex-row.overflow-hidden {
+            display: block !important;
+            overflow: visible !important;
+          }
+
           .print-preview {
             width: 100% !important;
             max-width: 100% !important;
