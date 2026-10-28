@@ -518,8 +518,8 @@ export default function StandbyWeekendEditor() {
                 <div className="text-left space-y-14">
                   <p className="font-bold">PT Inovasi Anak Indonesia</p>
                   <div>
-                    <p className="font-bold underline">{formData.picParkee || "Nur Hakim"}</p>
-                    <p className="font-semibold text-slate-700">Lead IT</p>
+                    <p className="font-bold underline">{formData.picParkee}</p>
+                    <p className="font-semibold text-slate-700">IT Support</p>
                   </div>
                 </div>
                 <div className="text-left space-y-14">
