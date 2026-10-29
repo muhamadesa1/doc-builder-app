@@ -1,8 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import * as XLSX from "xlsx-js-style";
+
+type Attachment = {
+  id: string;
+  name: string;
+  size: string;
+  pages: string[];
+};
 
 export default function ReimbursEditor() {
   const [formData, setFormData] = useState({
@@ -263,8 +270,118 @@ export default function ReimbursEditor() {
     reader.readAsBinaryString(file);
   };
 
+  // Lampiran PDF yang akan digabung dengan dokumen saat dicetak / Save PDF
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [loadingUpload, setLoadingUpload] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  // Render tiap halaman PDF lampiran jadi gambar, supaya ikut tercetak jadi satu dokumen
+  const renderPdfPages = async (file: File): Promise<string[]> => {
+    const pdfjs = await import("pdfjs-dist");
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.js",
+      import.meta.url
+    ).toString();
+
+    const doc = await pdfjs.getDocument({
+      data: new Uint8Array(await file.arrayBuffer()),
+    }).promise;
+
+    const pages: string[] = [];
+
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas tidak tersedia");
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // PNG untuk halaman teks (tajam), fallback JPEG kalau PNG-nya kegedean
+      const png = canvas.toDataURL("image/png");
+      pages.push(png.length > 1_500_000 ? canvas.toDataURL("image/jpeg", 0.92) : png);
+      page.cleanup();
+    }
+
+    await doc.destroy();
+    return pages;
+  };
+
+  const handleAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []).filter(
+      (f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")
+    );
+    if (files.length === 0) return;
+
+    setLoadingUpload(true);
+    try {
+      for (const file of files) {
+        const pages = await renderPdfPages(file);
+        setAttachments((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).slice(2, 9),
+            name: file.name,
+            size: formatSize(file.size),
+            pages,
+          },
+        ]);
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Gagal membaca PDF lampiran: " + (err?.message || err));
+    } finally {
+      setLoadingUpload(false);
+      e.target.value = "";
+    }
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 p-4 text-[10px] text-slate-800">
+      <style jsx global>{`
+        @media print {
+          .attachments-wrap {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+          }
+
+          .attachment-page {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding-top: 4mm;
+            text-align: center;
+            page-break-before: always;
+            break-before: page;
+          }
+
+          .attachment-page img {
+            display: block !important;
+            width: auto !important;
+            height: auto !important;
+            max-width: 180mm !important;
+            max-height: 255mm !important;
+            margin: 0 auto !important;
+          }
+        }
+      `}</style>
+
       <header className="max-w-[210mm] mx-auto flex justify-between items-center mb-2 print:hidden gap-1">
         <Link href="/" className="text-indigo-600 font-bold text-xs">← Kembali</Link>
         <div className="flex gap-1 items-center">
@@ -416,6 +533,76 @@ export default function ReimbursEditor() {
           </table>
         </div>
       </div>
+
+      {/* Upload lampiran PDF */}
+      <div className="max-w-[210mm] mx-auto mt-4 border border-dashed border-slate-300 bg-white p-3 rounded-lg space-y-2 print:hidden">
+        <p className="font-bold text-[10px] uppercase tracking-wide text-slate-500">Lampiran PDF</p>
+        <p className="text-[9px] text-slate-500">
+          PDF yang diupload digabung setelah dokumen waktu klik <strong>🖨️ Cetak</strong>.
+        </p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="application/pdf,.pdf"
+          onChange={handleAttachmentUpload}
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={loadingUpload}
+          className="bg-sky-500 text-white px-2.5 py-1 rounded text-[9px] font-bold shadow disabled:opacity-50"
+        >
+          {loadingUpload ? "⏳ MEMBACA PDF..." : "📤 Upload PDF Lampiran"}
+        </button>
+
+        {attachments.length > 0 && (
+          <ul className="space-y-1 pt-1">
+            {attachments.map((att) => (
+              <li
+                key={att.id}
+                className="flex items-center justify-between gap-2 text-[9px] border border-slate-200 rounded px-2 py-1"
+              >
+                <span className="truncate font-semibold">{att.name}</span>
+                <span className="text-slate-400 shrink-0">{att.pages.length} halaman</span>
+                <button
+                  type="button"
+                  onClick={() => removeAttachment(att.id)}
+                  className="text-rose-500 font-bold shrink-0"
+                  title="Hapus lampiran"
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Halaman lampiran: ikut tercetak setelah dokumen */}
+      {attachments.length > 0 && (
+        <div className="attachments-wrap max-w-[210mm] mx-auto mt-4 flex flex-col gap-4 print:block print:m-0 print:max-w-none">
+          {attachments.map((att) =>
+            att.pages.map((src, idx) => (
+              <figure
+                key={`${att.id}-${idx}`}
+                className="attachment-page relative bg-white shadow-sm border rounded overflow-hidden print:shadow-none print:border-none print:m-0"
+              >
+                <figcaption className="absolute top-2 left-2 z-10 px-2 py-1 rounded bg-slate-900/70 text-white text-[9px] font-semibold print:hidden">
+                  {att.name} · hal. {idx + 1}/{att.pages.length}
+                </figcaption>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={`${att.name} halaman ${idx + 1}`}
+                  className="block w-full h-auto"
+                />
+              </figure>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
+
+type Attachment = {
+  id: string;
+  name: string;
+  size: string;
+  pages: string[];
+};
 
 export default function StorageEditor() {
   const [formData, setFormData] = useState({
@@ -94,6 +101,87 @@ export default function StorageEditor() {
     setFormData({ ...formData, testing: updatedTesting });
   };
 
+  // Lampiran PDF yang akan digabung dengan Berita Acara saat dicetak / Save PDF
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [loadingUpload, setLoadingUpload] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  // Render tiap halaman PDF lampiran jadi gambar, supaya ikut tercetak jadi satu dokumen
+  const renderPdfPages = async (file: File): Promise<string[]> => {
+    const pdfjs = await import("pdfjs-dist");
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.js",
+      import.meta.url
+    ).toString();
+
+    const doc = await pdfjs.getDocument({
+      data: new Uint8Array(await file.arrayBuffer()),
+    }).promise;
+
+    const pages: string[] = [];
+
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas tidak tersedia");
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // PNG untuk halaman teks (tajam), fallback JPEG kalau PNG-nya kegedean
+      const png = canvas.toDataURL("image/png");
+      pages.push(png.length > 1_500_000 ? canvas.toDataURL("image/jpeg", 0.92) : png);
+      page.cleanup();
+    }
+
+    await doc.destroy();
+    return pages;
+  };
+
+  const handleAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []).filter(
+      (f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")
+    );
+    if (files.length === 0) return;
+
+    setLoadingUpload(true);
+    try {
+      for (const file of files) {
+        const pages = await renderPdfPages(file);
+        setAttachments((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).slice(2, 9),
+            name: file.name,
+            size: formatSize(file.size),
+            pages,
+          },
+        ]);
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Gagal membaca PDF lampiran: " + (err?.message || err));
+    } finally {
+      setLoadingUpload(false);
+      e.target.value = "";
+    }
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
       {/* Background Dot Grid Pattern */}
@@ -183,6 +271,39 @@ export default function StorageEditor() {
           }
           tr {
             page-break-inside: avoid;
+          }
+
+          .attachments-wrap {
+            display: block !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 8mm 10mm 0 !important;
+          }
+
+          .attachment-page {
+            display: block !important;
+            width: 100% !important;
+            height: 281mm !important;
+            margin: 0 !important;
+            overflow: hidden !important;
+            page-break-before: always;
+            break-before: page;
+          }
+
+          .attachment-page img {
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            object-position: center !important;
+          }
+
+          /* Saat ada lampiran, dokumen dibikin statis biar lampiran mengalir setelahnya */
+          .has-attachment .print-document {
+            position: static !important;
+            left: auto !important;
+            top: auto !important;
           }
         }
       `}</style>
@@ -346,6 +467,60 @@ export default function StorageEditor() {
             </div>
           </div>
 
+          {/* Section 5: Lampiran PDF (digabung pas cetak / Save PDF) */}
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-3">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Lampiran PDF</h3>
+            <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+              PDF yang diupload akan digabung di belakang Berita Acara waktu klik{" "}
+              <strong>Cetak / Save PDF</strong>.
+            </p>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="application/pdf,.pdf"
+              onChange={handleAttachmentUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loadingUpload}
+              className="w-full px-4 py-3 bg-sky-500 hover:bg-sky-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold text-xs rounded-xl shadow transition-all uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99]"
+            >
+              {loadingUpload ? "⏳ MEMBACA PDF..." : "📤 Upload PDF Lampiran"}
+            </button>
+
+            {attachments.length > 0 && (
+              <ul className="space-y-2">
+                {attachments.map((att) => (
+                  <li
+                    key={att.id}
+                    className="flex items-center justify-between gap-2 p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold truncate text-slate-700 dark:text-slate-200">
+                        {att.name}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {att.pages.length} halaman · {att.size}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(att.id)}
+                      className="shrink-0 w-6 h-6 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold flex items-center justify-center"
+                      title="Hapus lampiran"
+                    >
+                      ✕
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
           {/* Section Penandatangan */}
           <div className="p-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl space-y-4">
             <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400">Tim &amp; Penandatangan</h3>
@@ -371,7 +546,7 @@ export default function StorageEditor() {
         </div>
 
         {/* Right Side: Document Preview / Print Area */}
-        <div className="print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex justify-center print:w-full print:p-0 print:bg-white print:overflow-visible">
+        <div className={`print-preview w-full md:w-7/12 p-6 overflow-y-auto bg-slate-200 dark:bg-slate-900 flex flex-col items-center print:w-full print:p-0 print:bg-white print:overflow-visible ${attachments.length > 0 ? "has-attachment" : ""}`}>
           <div id="print-document" className="print-document bg-white text-slate-900 px-10 pt-6 pb-10 shadow-xl border rounded-sm w-full max-w-[210mm] text-[10.5px] leading-tight font-sans print:shadow-none print:border-none print:p-0 print:w-full print:overflow-visible">
             
             <table className="w-full border-none">
@@ -520,6 +695,30 @@ export default function StorageEditor() {
               </tbody>
             </table>
           </div>
+
+          {/* Halaman lampiran: ikut tercetak setelah Berita Acara */}
+          {attachments.length > 0 && (
+            <div className="attachments-wrap w-full max-w-[210mm] flex flex-col gap-4 mt-6 print:block print:m-0 print:max-w-none">
+              {attachments.map((att) =>
+                att.pages.map((src, idx) => (
+                  <figure
+                    key={`${att.id}-${idx}`}
+                    className="attachment-page relative bg-white shadow-xl border rounded-sm overflow-hidden print:shadow-none print:border-none print:m-0"
+                  >
+                    <figcaption className="absolute top-2 left-2 z-10 px-2 py-1 rounded bg-slate-900/70 text-white text-[10px] font-semibold print:hidden">
+                      {att.name} · hal. {idx + 1}/{att.pages.length}
+                    </figcaption>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={src}
+                      alt={`${att.name} halaman ${idx + 1}`}
+                      className="block w-full h-auto"
+                    />
+                  </figure>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
